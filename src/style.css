@@ -249,3 +249,10 @@ html[data-theme="dark"] .auth-divider{background:#4b4c50}
 html[data-theme="dark"] .auth-form input{background:#25272a;color:#f4f1e8;border-color:#4b4c50}
 html[data-theme="dark"] .auth-forgot{color:#d2b46b}
 @media(max-width:420px){.auth-login-shell{padding:18px 12px}.auth-login-card{border-radius:17px;padding:24px 20px}}
+
+/* Seleção explícita da foto de capa */
+.photo-controls button[data-photo-cover]{color:#9a7935;font-size:13px;min-width:30px}
+.photo-controls button[data-photo-cover]:disabled{opacity:.25}
+.import-gallery-preview figure.import-cover-selected{outline:2px solid #b49350;outline-offset:2px;border-radius:8px;background:#f8f1df}
+.import-cover-choice{display:block;width:100%;margin-top:5px;border:1px solid #d8c69f;border-radius:6px;padding:6px 4px;background:#fffefa;color:#17345b;font-size:10px;font-weight:700;cursor:pointer}
+.import-gallery-preview figure.import-cover-selected .import-cover-choice{background:#17345b;border-color:#17345b;color:#fff}
