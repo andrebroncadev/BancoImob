@@ -69,7 +69,7 @@
  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});
  document.getElementById('uspInstall').addEventListener('click',async()=>{if(deferredPrompt){deferredPrompt.prompt();const c=await deferredPrompt.userChoice;status.textContent=c.outcome==='accepted'?'Instalação iniciada.':'Instalação cancelada.';deferredPrompt=null;return}if(window.matchMedia('(display-mode: standalone)').matches){status.textContent='Este aplicativo já está instalado neste aparelho.';return}status.textContent='No Chrome, abra o menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.'});
  document.getElementById('uspUpdate').addEventListener('click',async()=>{status.textContent='Verificando atualizações…';try{if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg){await reg.update();if(reg.waiting){reg.waiting.postMessage({type:'SKIP_WAITING'});status.textContent='Atualização encontrada. Recarregando…';setTimeout(()=>location.reload(),600);return}}}status.textContent='Verificação concluída. Recarregue a página se uma nova versão foi publicada.'}catch(e){status.textContent='Não foi possível verificar agora. Confira a conexão e tente novamente.'}});
- const obs=new MutationObserver(()=>{addBurger();collectPages()});obs.observe(document.body,{childList:true,subtree:true});addBurger();collectPages();theme();
+ const obs=new MutationObserver(records=>{if(records.some(r=>!r.target.closest?.('#unifiedSettingsDrawer')&&!r.target.closest?.('#unifiedSettingsPage'))){addBurger();collectPages()}});obs.observe(document.body,{childList:true,subtree:true});addBurger();collectPages();theme();
 })();
 </script>
 </body></html>
