@@ -48,29 +48,44 @@ export default async function handler(req, res) {
 
     let currentListing = listingUrl(submittedListing);
     let page;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      page = await fetch(currentListing, {
-        redirect: 'manual',
-        signal: AbortSignal.timeout(10000),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; MareListingImporter/1.0)',
-          'Accept': 'text/html,application/xhtml+xml'
-        }
-      });
-      if (![301, 302, 303, 307, 308].includes(page.status)) break;
-      const location = page.headers.get('location');
-      if (!location || attempt === 3) throw new Error('O anúncio redirecionou muitas vezes.');
-      currentListing = listingUrl(new URL(location, currentListing).toString());
-    }
-    if (!page?.ok || !(page.headers.get('content-type') || '').includes('text/html')) {
-      throw new Error('Não foi possível validar a origem da imagem no anúncio.');
-    }
-    const html = decodeHtml((await page.text()).slice(0, 2_000_000));
+    let pageError = null;
+    try {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        page = await fetch(currentListing, {
+          redirect: 'manual',
+          signal: AbortSignal.timeout(10000),
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; BancoImobListingImporter/2.0)',
+            'Accept': 'text/html,application/xhtml+xml'
+          }
+        });
+        if (![301, 302, 303, 307, 308].includes(page.status)) break;
+        const location = page.headers.get('location');
+        if (!location || attempt === 3) throw new Error('O anúncio redirecionou muitas vezes.');
+        currentListing = listingUrl(new URL(location, currentListing).toString());
+      }
+    } catch (error) { pageError = error; }
+
     const requested = imageUrl(submittedImage);
-    const normalizedHtml = html.replace(/\\\//g, '/');
-    if (!normalizedHtml.includes(requested.toString()) && !normalizedHtml.includes(requested.toString().replace(/&/g, '&amp;'))) {
-      throw new Error('A imagem não foi encontrada no anúncio informado.');
+    let sourceText = '';
+    if (page?.ok && (page.headers.get('content-type') || '').includes('text/html') && !pageError) {
+      sourceText = decodeHtml((await page.text()).slice(0, 2_000_000));
     }
+    const imageMatches = value => {
+      const normalized = String(value || '').replace(/\\\//g, '/');
+      return normalized.includes(requested.toString()) || normalized.includes(requested.toString().replace(/&/g, '&amp;'));
+    };
+    if (!imageMatches(sourceText)) {
+      try {
+        const readerUrl = 'https://r.jina.ai/http://' + currentListing.hostname + currentListing.pathname + currentListing.search;
+        const reader = await fetch(readerUrl, {
+          signal: AbortSignal.timeout(18000),
+          headers: { 'Accept': 'text/plain', 'User-Agent': 'BancoImob-Listing-Importer/1.0' }
+        });
+        if (reader.ok) sourceText = await reader.text();
+      } catch {}
+    }
+    if (!imageMatches(sourceText)) throw new Error('A imagem não foi encontrada na página original nem na leitura alternativa do anúncio.');
 
     let currentImage = requested;
     let response;
@@ -78,7 +93,7 @@ export default async function handler(req, res) {
       response = await fetch(currentImage, {
         redirect: 'manual',
         signal: AbortSignal.timeout(10000),
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MareListingImporter/1.0)', 'Accept': 'image/avif,image/webp,image/png,image/jpeg' }
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BancoImobListingImporter/2.0)', 'Accept': 'image/avif,image/webp,image/png,image/jpeg', 'Referer': currentListing.toString() }
       });
       if (![301, 302, 303, 307, 308].includes(response.status)) break;
       const location = response.headers.get('location');
