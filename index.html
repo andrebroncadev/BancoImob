@@ -31,42 +31,98 @@
 #install-app:focus-visible{outline:3px solid #e4c783;outline-offset:3px}
 @media(min-width:760px){#install-app{right:24px;bottom:24px}}
 </style>
+
+<style id="bancoimob-settings-style">
+#themeToggle,.theme-toggle,#install-app{display:none!important}
+.bi-menu-trigger{display:inline-flex;align-items:center;gap:9px;cursor:pointer!important}
+.bi-burger{display:inline-grid;gap:4px;width:19px;flex:0 0 19px}
+.bi-burger i{display:block;width:19px;height:2px;border-radius:2px;background:currentColor}
+#bi-settings-backdrop{position:fixed;inset:0;z-index:10020;background:#0008;opacity:0;visibility:hidden;transition:opacity .2s}
+#bi-settings-backdrop.open{opacity:1;visibility:visible}
+#bi-settings-drawer{position:fixed;z-index:10021;inset:0 auto 0 0;width:min(330px,88vw);padding:18px;background:#fffefa;color:#252a31;border-right:1px solid #e8e1d3;box-shadow:8px 0 35px #0002;transform:translateX(-102%);transition:transform .22s;display:flex;flex-direction:column;gap:7px;overflow:auto;font:16px/1.45 system-ui,sans-serif}
+#bi-settings-drawer.open{transform:translateX(0)}
+#bi-settings-drawer .bi-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:6px 0 15px;border-bottom:1px solid #e8e1d3;margin-bottom:7px;font-weight:800}
+#bi-settings-drawer button,#bi-settings-page button{font:inherit;cursor:pointer}
+#bi-settings-drawer .bi-close{border:0;background:transparent;color:inherit;font-size:1.5rem;padding:2px 8px}
+#bi-settings-drawer .bi-drawer-section{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#77756f;font-weight:800;margin:13px 10px 2px}
+#bi-settings-drawer .bi-drawer-link{display:flex;align-items:center;gap:10px;width:100%;padding:12px;border:0;border-radius:10px;background:transparent;color:inherit;text-decoration:none;text-align:left}
+#bi-settings-drawer .bi-drawer-link:hover{background:#f3ecdc}
+#bi-settings-page{position:fixed;z-index:10030;inset:0;overflow:auto;background:#f7f5ef;color:#252a31;padding:calc(22px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(30px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+#bi-settings-page[hidden]{display:none}
+#bi-settings-page .bi-settings-inner{width:min(760px,100%);margin:0 auto}
+#bi-settings-page .bi-back{border:1px solid #e8e1d3;border-radius:10px;padding:9px 13px;background:#fffefa;color:inherit;margin-bottom:24px}
+#bi-settings-page h1{font-size:clamp(2rem,7vw,3rem);line-height:1.08;letter-spacing:-.04em;margin:.5rem 0 1rem;color:#17345b}
+#bi-settings-page .bi-intro{color:#77756f;margin:0 0 24px}
+#bi-settings-page .bi-settings-list{display:grid;gap:12px}
+#bi-settings-page .bi-setting{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:16px;background:#fffefa;border:1px solid #e8e1d3;border-radius:14px}
+#bi-settings-page .bi-setting strong{display:block}
+#bi-settings-page .bi-setting small{display:block;color:#77756f;font-size:.9rem;margin-top:3px}
+#bi-settings-page .bi-action{border:1px solid #e8e1d3;border-radius:10px;padding:10px 13px;background:#f3ecdc;color:#17345b;font-weight:650;white-space:nowrap}
+#bi-settings-page .bi-status{color:#77756f;min-height:1.5em;font-size:.9rem;margin-top:14px}
+#bi-settings-page .bi-switch{width:46px;height:27px;position:relative;flex:0 0 46px}
+#bi-settings-page .bi-switch input{position:absolute;opacity:0;width:1px;height:1px}
+#bi-settings-page .bi-switch span{position:absolute;inset:0;border-radius:30px;background:#e9e8e5;border:1px solid #d8d6d0}
+#bi-settings-page .bi-switch span:before{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;border-radius:50%;background:#77756f;transition:transform .18s}
+#bi-settings-page .bi-switch input:checked+span{background:#17345b}
+#bi-settings-page .bi-switch input:checked+span:before{transform:translateX(19px);background:#fff}
+html[data-theme="dark"] #bi-settings-drawer{background:#202225;color:#f4f1e8;border-color:#414348}
+html[data-theme="dark"] #bi-settings-drawer .bi-drawer-head{border-color:#414348}
+html[data-theme="dark"] #bi-settings-drawer .bi-drawer-link:hover{background:#303236}
+html[data-theme="dark"] #bi-settings-page{background:#1d1f22;color:#f4f1e8}
+html[data-theme="dark"] #bi-settings-page h1{color:#f4f1e8}
+html[data-theme="dark"] #bi-settings-page .bi-setting{background:#25272a;border-color:#414348}
+html[data-theme="dark"] #bi-settings-page .bi-setting small,html[data-theme="dark"] #bi-settings-page .bi-intro,html[data-theme="dark"] #bi-settings-page .bi-status{color:#b8b5ad}
+html[data-theme="dark"] #bi-settings-page .bi-back,html[data-theme="dark"] #bi-settings-page .bi-action{background:#303236;color:#f4f1e8;border-color:#414348}
+@media(max-width:480px){#bi-settings-page .bi-setting{align-items:flex-start}#bi-settings-page .bi-action{padding:9px 10px;font-size:.9rem}}
+</style>
 </head>
 <body>
 <div id="app">Carregando BancoImob…</div>
+<div id="bi-settings-backdrop" aria-hidden="true"></div>
+<aside id="bi-settings-drawer" aria-label="Menu do site" aria-hidden="true">
+ <div class="bi-drawer-head"><span id="bi-drawer-title">BancoImob</span><button type="button" class="bi-close" id="bi-drawer-close" aria-label="Fechar menu">×</button></div>
+ <div class="bi-drawer-section">Páginas</div><div id="bi-drawer-pages"></div>
+ <div class="bi-drawer-section">Preferências</div><button type="button" class="bi-drawer-link" id="bi-open-settings">⚙ Configurações</button>
+</aside>
+<section id="bi-settings-page" hidden aria-label="Configurações do BancoImob"><div class="bi-settings-inner">
+ <button type="button" class="bi-back" id="bi-settings-back">← Voltar ao site</button><div style="font-size:.76rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#a17d35">Preferências</div><h1>Configurações</h1><p class="bi-intro">Ajustes do BancoImob neste aparelho. Novas opções também ficarão organizadas aqui.</p>
+ <div class="bi-settings-list">
+  <div class="bi-setting"><div><strong>Modo escuro</strong><small>Salva sua preferência neste aparelho.</small></div><label class="bi-switch" aria-label="Ativar modo escuro"><input id="bi-theme-switch" type="checkbox"><span></span></label></div>
+  <div class="bi-setting"><div><strong>Instalar aplicativo</strong><small>Adicione o BancoImob à tela inicial para abrir como aplicativo.</small></div><button type="button" class="bi-action" id="bi-install">＋ Instalar</button></div>
+  <div class="bi-setting"><div><strong>Verificar atualização</strong><small>Procura uma versão mais recente do aplicativo.</small></div><button type="button" class="bi-action" id="bi-update">Verificar</button></div>
+  <div class="bi-setting"><div><strong>Uso offline</strong><small>A estrutura do site pode abrir sem internet depois de carregada. Login e dados sincronizados ainda precisam de conexão.</small></div><span aria-hidden="true">ⓘ</span></div>
+ </div><p class="bi-status" id="bi-settings-status" role="status" aria-live="polite"></p>
+</div></section>
 <button id="install-app" type="button" hidden>＋ Instalar BancoImob</button>
 <script type="module" src="/src/main.js"></script>
 <script>
 (() => {
-  const installButton = document.getElementById('install-app');
-  let installPrompt = null;
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(error => {
-        console.warn('Não foi possível ativar o modo instalável:', error);
-      });
-    });
-  }
-
-  window.addEventListener('beforeinstallprompt', event => {
-    event.preventDefault();
-    installPrompt = event;
-    installButton.hidden = false;
-  });
-
-  installButton.addEventListener('click', async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    installPrompt = null;
-    installButton.hidden = true;
-  });
-
-  window.addEventListener('appinstalled', () => {
-    installPrompt = null;
-    installButton.hidden = true;
-  });
+ const $=id=>document.getElementById(id);
+ const installButton=$('install-app');
+ let installPrompt=null;
+ const drawer=$('bi-settings-drawer'),backdrop=$('bi-settings-backdrop'),settings=$('bi-settings-page'),pages=$('bi-drawer-pages'),status=$('bi-settings-status'),themeSwitch=$('bi-theme-switch');
+ const themeKey='remax-unified-theme',root=document.documentElement;
+ const siteTitle=(document.title||'BancoImob').split(/[—|]/)[0].trim()||'BancoImob';
+ $('bi-drawer-title').textContent=siteTitle;
+ function applyTheme(value){root.dataset.theme=value;themeSwitch.checked=value==='dark';try{localStorage.setItem(themeKey,value)}catch(e){}const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=value==='dark'?'#222326':'#f6f5ef'}
+ function syncTheme(){let value='light';try{value=localStorage.getItem(themeKey)||root.dataset.theme||'light'}catch(e){value=root.dataset.theme||'light'}root.dataset.theme=value;themeSwitch.checked=value==='dark'}
+ function openMenu(open){drawer.classList.toggle('open',open);backdrop.classList.toggle('open',open);drawer.setAttribute('aria-hidden',String(!open));backdrop.setAttribute('aria-hidden',String(!open));document.body.style.overflow=open?'hidden':''}
+ function openSettings(){openMenu(false);settings.hidden=false;status.textContent='';syncTheme();document.body.style.overflow='hidden'}
+ function closeSettings(){settings.hidden=true;document.body.style.overflow=''}
+ function attachTriggers(){document.querySelectorAll('#app .logo,#app .mobile-logo,#app .auth-brand,#app .brand').forEach(el=>{if(el.dataset.biMenu==='1')return;el.dataset.biMenu='1';el.classList.add('bi-menu-trigger');const burger=document.createElement('span');burger.className='bi-burger';burger.setAttribute('aria-hidden','true');burger.innerHTML='<i></i><i></i>';el.prepend(burger);if(el.tagName==='A')el.href='#';el.setAttribute('role','button');el.setAttribute('tabindex','0');el.setAttribute('aria-label','Abrir páginas e configurações')})}
+ function collectPages(){pages.innerHTML='';const seen=new Set();const candidates=[...document.querySelectorAll('#app .sidebar nav button[data-page],#app nav button[data-page]')];candidates.forEach(el=>{if(el.hidden||el.disabled)return;const label=(el.innerText||el.textContent||'').trim().replace(/\s+/g,' ');if(!label||seen.has(label))return;seen.add(label);const b=document.createElement('button');b.type='button';b.className='bi-drawer-link';b.textContent='› '+label;b.addEventListener('click',()=>{el.click();openMenu(false)});pages.appendChild(b)});if(!pages.children.length){const b=document.createElement('button');b.type='button';b.className='bi-drawer-link';b.textContent='⌂ Início';b.addEventListener('click',()=>{openMenu(false);location.reload()});pages.appendChild(b)}}
+ document.addEventListener('click',e=>{const trigger=e.target.closest?.('.bi-menu-trigger');if(trigger){e.preventDefault();openMenu(true)}});
+ document.addEventListener('keydown',e=>{const trigger=e.target.closest?.('.bi-menu-trigger');if(trigger&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openMenu(true)}if(e.key==='Escape'){openMenu(false);if(!settings.hidden)closeSettings()}});
+ $('bi-drawer-close').addEventListener('click',()=>openMenu(false));backdrop.addEventListener('click',()=>openMenu(false));$('bi-open-settings').addEventListener('click',openSettings);$('bi-settings-back').addEventListener('click',closeSettings);
+ themeSwitch.addEventListener('change',()=>{applyTheme(themeSwitch.checked?'dark':'light');status.textContent='Preferência de aparência salva.'});
+ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
+ window.bancoimobInstall=async()=>{if(installPrompt){installPrompt.prompt();const choice=await installPrompt.userChoice;status.textContent=choice.outcome==='accepted'?'Instalação confirmada.':'Instalação não concluída.';installPrompt=null;return}if(window.matchMedia('(display-mode: standalone)').matches){status.textContent='O BancoImob já está instalado neste aparelho.';return}status.textContent='No Chrome, abra o menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.'};
+ $('bi-install').addEventListener('click',()=>window.bancoimobInstall());
+ $('bi-update').addEventListener('click',async()=>{status.textContent='Verificando atualizações…';try{if('serviceWorker'in navigator){const reg=await navigator.serviceWorker.getRegistration();if(reg){await reg.update();if(reg.waiting){reg.waiting.postMessage({type:'SKIP_WAITING'});status.textContent='Atualização encontrada. Recarregando…';setTimeout(()=>location.reload(),700);return}}}status.textContent='Verificação concluída. Se houver uma versão nova, ela será carregada ao atualizar a página.'}catch(error){status.textContent='Não foi possível verificar agora. Confira a conexão e tente novamente.'}});
+ window.addEventListener('appinstalled',()=>{installPrompt=null;status.textContent='BancoImob instalado com sucesso.'});
+ const observer=new MutationObserver(()=>{attachTriggers();collectPages()});observer.observe($('app'),{childList:true,subtree:true});
+ syncTheme();attachTriggers();collectPages();
+ if(installButton)installButton.hidden=true;
 })();
 </script>
 </body>
