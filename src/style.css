@@ -256,3 +256,8 @@ html[data-theme="dark"] .auth-forgot{color:#d2b46b}
 .import-gallery-preview figure.import-cover-selected{outline:2px solid #b49350;outline-offset:2px;border-radius:8px;background:#f8f1df}
 .import-cover-choice{display:block;width:100%;margin-top:5px;border:1px solid #d8c69f;border-radius:6px;padding:6px 4px;background:#fffefa;color:#17345b;font-size:10px;font-weight:700;cursor:pointer}
 .import-gallery-preview figure.import-cover-selected .import-cover-choice{background:#17345b;border-color:#17345b;color:#fff}
+
+/* Link da publicação original, quando disponível no cadastro */
+.card-actions .original-listing-link{display:inline-flex;align-items:center;border:1px solid var(--line);background:#faf7ef;border-radius:7px;padding:6px;color:#17345b;font-size:10px;text-decoration:none;font-weight:700}
+.card-actions .original-listing-link:hover{text-decoration:underline;background:#f3ecdc}
+.field-hint{display:block;margin-top:5px;color:#77756f;font-size:10px;line-height:1.5}
