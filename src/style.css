@@ -235,3 +235,8 @@ html[data-theme="dark"] .auth-shell{background:radial-gradient(ellipse at 80% 0%
 html[data-theme="dark"] .auth-card{background:#2d2f33;border-color:#4b4c50;color:#f4f1e8}
 html[data-theme="dark"] .auth-card h2{color:#f4f1e8}
 @media(max-width:420px){.auth-shell{padding:18px 12px}.auth-card{border-radius:17px;padding:24px 20px}}
+
+/* Link da publicação original no cartão do imóvel */
+.card-actions .original-listing-link{display:inline-flex;align-items:center;border:1px solid var(--line);background:#faf7ef;border-radius:7px;padding:6px;color:#17345b;font-size:10px;text-decoration:none;font-weight:700}
+.card-actions .original-listing-link:hover{text-decoration:underline;background:#f3ecdc}
+.field-help{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5}
