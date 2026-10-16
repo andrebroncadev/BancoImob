@@ -33,6 +33,28 @@ function validUrl(value) {
   return url;
 }
 
+async function readWithReader(url) {
+  const readerUrl = 'https://r.jina.ai/http://' + url.hostname + url.pathname + url.search;
+  const response = await fetch(readerUrl, {
+    signal: AbortSignal.timeout(18000),
+    headers: { 'Accept': 'text/plain', 'User-Agent': 'BancoImob-Listing-Importer/1.0' }
+  });
+  if (!response.ok) throw new Error('O leitor alternativo não conseguiu abrir o anúncio.');
+  const text = (await response.text()).slice(0, 1_500_000);
+  if (text.length < 80) throw new Error('A página não retornou conteúdo suficiente.');
+  return text;
+}
+
+function readerImages(text, base) {
+  const found = [];
+  const re = /!\[[^\]]*\]\((https:\/\/[^)\s]+)(?:\s+[^)]*)?\)/gi;
+  for (const match of text.matchAll(re)) {
+    const url = absoluteImage(match[1], base);
+    if (url && !found.includes(url)) found.push(url);
+  }
+  return found;
+}
+
 function absoluteImage(raw, base) {
   try {
     const url = new URL(decodeHtml(String(raw).replace(/\\\//g, '/').trim()), base);
@@ -124,34 +146,47 @@ export default async function handler(req, res) {
 
     let current = validUrl(submitted);
     let response;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      response = await fetch(current, {
-        redirect: 'manual',
-        signal: AbortSignal.timeout(12000),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; MareListingImporter/1.0)',
-          'Accept': 'text/html,application/xhtml+xml'
+    let directError = null;
+    try {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        response = await fetch(current, {
+          redirect: 'manual',
+          signal: AbortSignal.timeout(12000),
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; BancoImobListingImporter/2.0)',
+            'Accept': 'text/html,application/xhtml+xml'
+          }
+        });
+        if (![301, 302, 303, 307, 308].includes(response.status)) break;
+        const location = response.headers.get('location');
+        if (!location || attempt === 3) throw new Error('O anúncio redirecionou muitas vezes.');
+        current = validUrl(new URL(location, current).toString());
+      }
+    } catch (error) { directError = error; }
+
+    const type = response?.headers?.get('content-type') || '';
+    let readerText = '';
+    let html = '';
+    if (!response?.ok || !type.includes('text/html') || directError) {
+      try {
+        readerText = await readWithReader(current);
+      } catch (readerError) {
+        const status = response?.status || 0;
+        if (status === 403 || status === 429) {
+          throw new Error('O TemporadaLivre bloqueou a leitura direta e o leitor alternativo também não conseguiu acessar. Use “Colar texto” como alternativa.');
         }
-      });
-      if (![301, 302, 303, 307, 308].includes(response.status)) break;
-      const location = response.headers.get('location');
-      if (!location || attempt === 3) throw new Error('O anúncio redirecionou muitas vezes.');
-      current = validUrl(new URL(location, current).toString());
+        if (directError?.name === 'TimeoutError') throw new Error('A página demorou para responder. O leitor alternativo também falhou; tente novamente ou use “Colar texto”.');
+        throw new Error(readerError?.message || 'Não consegui abrir esse anúncio. Confira o link ou use “Colar texto”.');
+      }
+    } else {
+      html = (await response.text()).slice(0, 2_000_000);
     }
 
-    if (!response?.ok) {
-      const status = response?.status || 0;
-      throw new Error(status === 403 || status === 429
-        ? 'O site bloqueou a leitura automática. Copie o texto do anúncio e use a opção “Colar texto”.'
-        : 'Não consegui abrir esse anúncio. Confira o link ou use “Colar texto”.');
-    }
-
-    const type = response.headers.get('content-type') || '';
-    if (!type.includes('text/html')) throw new Error('O link não abriu uma página de anúncio HTML.');
-    const html = (await response.text()).slice(0, 2_000_000);
-    const title = decodeHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || meta(html, 'og:title', 'twitter:title')).replace(/\s+/g, ' ').trim();
-    const description = meta(html, 'og:description', 'description', 'twitter:description');
-    const images = collectImages(html, current);
+    const readerTitle = readerText.match(/^#\s+(.+)$/m)?.[1] || readerText.match(/^Title:\s*(.+)$/im)?.[1] || '';
+    const title = decodeHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || meta(html, 'og:title', 'twitter:title') || readerTitle).replace(/\s+/g, ' ').trim();
+    const readerDescription = readerText.match(/(?:^|\n)#{1,4}\s*(?:Descrição|Description)[^\n]*\n([\s\S]*?)(?=\n#{1,4}\s*(?:Disponibilidade|Preços?|O que tem|Características|Localização|Location|Reviews|Avaliações)|$)/i)?.[1]?.replace(/\n+/g, ' ').trim() || '';
+    const description = meta(html, 'og:description', 'description', 'twitter:description') || readerDescription;
+    const images = readerText ? readerImages(readerText, current) : collectImages(html, current);
     const videoRaw = meta(html, 'og:video:secure_url', 'og:video', 'og:video:url', 'twitter:player:stream');
     let video = '';
     if (videoRaw) {
@@ -170,10 +205,13 @@ export default async function handler(req, res) {
     const body = cleanedHtml
       .replace(/<(br|\/p|\/div|\/li|\/h[1-6]|\/section|\/article|\/tr)>/gi, '\n')
       .replace(/<[^>]+>/g, ' ');
-    const text = decodeHtml(body)
+    const cleanPageText = value => decodeHtml(value)
       .replace(/\{\{[\s\S]*?\}\}/g, ' ')
       .replace(/(?:Copiar link|Remover dos favoritos|Adicionar aos favoritos|Compartilhar por e-mail|Enviar pelo Whatsapp|Compartilhar pelo Facebook|Pedir Orçamento!?|Ver Telefones|Aguarde\s*\.{3}|Clique aqui para (?:ver|confirmar|pedir)|Nº de (?:Adultos|Crianças)|Digite o nome da pessoa para quem quer enviar|Qual o e-mail dela\?|Seu nome:|Seu e-mail:|Preço e disponibilidade|Detalhamento do preço|Anunciante verificado pelo TemporadaLivre|Locação 100% garantida|Resposta Rápida!?)/gi, ' ')
       .replace(/\s+/g, ' ').trim().slice(0, 12000);
+    const text = readerText
+      ? cleanPageText(readerText.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/^#{1,6}\s*/gm, '').replace(/^[-*|\s]+$/gm, ' '))
+      : cleanPageText(body);
     if (!title && !description && text.length < 80) {
       throw new Error('A página não disponibilizou dados suficientes. O site pode exigir JavaScript ou bloquear importações automáticas.');
     }
