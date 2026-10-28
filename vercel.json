@@ -1,1 +1,22 @@
-{"buildCommand":"npm run build","outputDirectory":"dist","installCommand":"npm install","rewrites":[{"source":"/imovel/:id","destination":"/"}]}
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/imovel/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(WhatsApp|facebookexternalhit|Facebot|Twitterbot|TelegramBot|LinkedInBot|Discordbot|Slackbot|Googlebot|bingbot|Pinterest|SkypeUriPreview|facebookcatalog)"
+        }
+      ],
+      "destination": "/api/preview?id=:id"
+    },
+    {
+      "source": "/imovel/:id",
+      "destination": "/"
+    }
+  ]
+}
