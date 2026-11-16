@@ -27,6 +27,7 @@ async function getListing(id) {
 
 export default async function handler(req, res) {
   const id = String(req.query?.id || '');
+  const version = String(req.query?.v || '5').replace(/[^0-9a-z_-]/gi, '').slice(0, 24) || '5';
   if (!UUID.test(id)) {
     res.status(400).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Link de imóvel inválido.');
     return;
@@ -36,7 +37,8 @@ export default async function handler(req, res) {
   try { listing = await getListing(id); }
   catch (error) { console.error('[BancoImob OG] listing lookup failed:', error?.message || error); }
 
-  const canonical = 'https://bancoimob-bronca.vercel.app/imovel/' + id;
+  const origin = 'https://bancoimob-bronca.vercel.app';
+  const canonical = origin + '/imovel/' + id + '?v=' + encodeURIComponent(version);
   const name = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
   const title = name + ' | BancoImob';
   const description = listing
@@ -50,18 +52,18 @@ export default async function handler(req, res) {
     return Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999);
   })[0] || null;
   const image = cover
-    ? 'https://bancoimob-bronca.vercel.app/api/og-image?id=' + encodeURIComponent(id) + '&v=1'
+    ? origin + '/api/og-image?id=' + encodeURIComponent(id) + '&v=' + encodeURIComponent(version)
     : '';
-  const imageType = cover && /\.png(?:$|\?)/i.test(cover.url) ? 'image/png'
-    : cover && /\.webp(?:$|\?)/i.test(cover.url) ? 'image/webp' : 'image/jpeg';
 
   const imageTags = image ? `
 <meta property="og:image" content="${escapeHtml(image)}">
 <meta property="og:image:url" content="${escapeHtml(image)}">
 <meta property="og:image:secure_url" content="${escapeHtml(image)}">
-<meta property="og:image:type" content="${imageType}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${escapeHtml(name)}">
-<meta name="twitter:image" content="${escapeHtml(image)}">` : '';
+<meta name="twitter:image" content="${escapeHtml(image)}"> ` : '';
 
   const html = `<!doctype html>
 <html lang="pt-BR">
@@ -70,25 +72,27 @@ export default async function handler(req, res) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
-<meta name="robots" content="noindex,nofollow">
-<link rel="canonical" href="${canonical}">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="${escapeHtml(canonical)}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BancoImob">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
-<meta property="og:url" content="${canonical}">
+<meta property="og:url" content="${escapeHtml(canonical)}">
 ${imageTags}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
 </head>
-<body><main><h1>${escapeHtml(name)}</h1><p>${escapeHtml(description)}</p>${image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(name) + '">' : ''}<p><a href="${canonical}">Abrir anúncio no BancoImob</a></p></main></body>
+<body><main><h1>${escapeHtml(name)}</h1><p>${escapeHtml(description)}</p>${image ? '<img src="' + escapeHtml(image) + '" width="1200" height="630" alt="' + escapeHtml(name) + '">' : ''}<p><a href="${escapeHtml(canonical)}">Abrir anúncio no BancoImob</a></p></main></body>
 </html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
+  res.setHeader('Content-Language', 'pt-BR');
+  res.setHeader('Cache-Control', 'public, s-maxage=0, stale-while-revalidate=0');
+  res.setHeader('Vary', 'User-Agent');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-BancoImob-OG', listing ? (cover ? 'listing-and-cover' : 'listing-without-cover') : 'listing-not-found');
-  res.status(200).send(html);
+  res.status(listing ? 200 : 404).send(html);
 }
