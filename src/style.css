@@ -120,7 +120,7 @@ body{background:var(--theme-bg);color:var(--theme-text)}
 .logo i,.user,.nav.active{background:var(--theme-surface-2);color:var(--theme-navy)}
 .nav{color:var(--theme-muted)}.nav.active{border:1px solid var(--theme-gold)}
 .side-bottom,.heading p,.welcome p,.metrics small,.metrics span,.card-body p,.facts,.choice small{color:var(--theme-muted)}
-.setup{background:var(--theme-bg)}.setup-card,.metrics article,.panel,.home-card,.modal,.period-launch,.catalog-selection,.photo-manager,.season-panel{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
+.setup{background:var(--theme-bg)}.setup-card,.metrics article,.panel,.home-card,.modal,.photo-manager{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
 .welcome{background:linear-gradient(115deg,var(--theme-surface) 60%,var(--theme-surface-2));border-color:var(--theme-line)}
 .btn.primary{background:var(--theme-navy);color:#fff}.btn.primary:hover{background:var(--theme-red)}
 .btn.secondary,.card-foot button,.table-wrap button,.tabs{background:var(--theme-surface-2);color:var(--theme-text);border-color:var(--theme-line)}
