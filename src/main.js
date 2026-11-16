@@ -109,7 +109,7 @@ async function deleteHome(id,button){
   say('Imóvel excluído.');await load();
 }
 function readPhotoCrop(url){
- const match=String(url||'').match(/#bi-crop=([\\d.]+),([\\d.]+),([\\d.]+)/);
+ const match=String(url||'').match(/#bi-crop=([\d.]+),([\d.]+),([\d.]+)/);
  if(!match)return {zoom:1,x:50,y:50};
  return {zoom:Math.min(3,Math.max(1,Number(match[1])||1)),x:Math.min(100,Math.max(0,Number(match[2])||50)),y:Math.min(100,Math.max(0,Number(match[3])||50))};
 }
