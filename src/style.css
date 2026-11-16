@@ -4,7 +4,6 @@
 @media(max-width:700px){.sidebar{inset:auto 0 0;width:auto;height:65px;padding:5px 4px;border-top:1px solid var(--line);border-right:0}.sidebar .logo,.sidebar>.kicker,.side-bottom{display:none}.sidebar nav{display:flex;justify-content:space-around;gap:0}.nav{width:25%;padding:5px 1px;flex-direction:column;gap:2px;align-items:center;text-align:center;font-size:8px;white-space:nowrap}.nav span{font-size:17px}.main{margin-left:0;padding-bottom:65px}header{height:58px;padding:0 15px}.mobile-logo{display:block;font:800 17px Manrope;color:var(--g)}header>span{display:none}.content{padding:22px 14px}.heading{align-items:flex-start;flex-direction:column}.heading>.btn{width:100%}.heading h1{font-size:28px}.metrics{grid-template-columns:1fr 1fr;gap:8px}.metrics article{padding:13px}.metrics article:first-child{grid-column:span 2}.metrics strong{font-size:26px;margin:8px 0}.welcome{padding:20px}.cards{grid-template-columns:1fr}.cover{height:165px}.toolbar{flex-direction:column}.toolbar select{max-width:none}.two-col{grid-template-columns:1fr}.panel{padding:16px}.row{gap:8px}.setup-card{padding:25px 21px}.setup h1{font-size:28px}.backdrop{padding:0;align-items:flex-end}.modal{max-height:92vh;border-radius:18px 18px 0 0;padding:20px 16px}.actions .btn{flex:1}}
 
 /* Tabela comercial da temporada */
-.season-panel{margin:18px 0;padding:22px;min-width:0}.season-panel h2{font:800 18px Manrope;color:var(--g);margin:0 0 12px}.muted{font-size:12px;color:var(--muted);line-height:1.7}.table-wrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin-top:14px}.data-table{border-collapse:separate;border-spacing:0;width:100%;min-width:740px;background:white;font-size:12px}.data-table th,.data-table td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}.data-table th{background:#f0f5f0;color:#52685a;font-size:10px;letter-spacing:.2px}.data-table td{color:#526257}.data-table td b{color:#254a37}.data-table tbody tr:last-child td{border-bottom:0}.data-table tbody tr:hover{background:#f8fbf8}.package-tag{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:5px;background:#f8edda;color:#8b6322;font-size:9px;letter-spacing:.5px}.season-result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px;margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#f8fbf8;font-size:12px}.season-result>div{display:flex;flex-direction:column;gap:5px}.season-result small{font-size:10px;color:var(--muted)}.season-result b{color:#294b38}.season-result .season-total{grid-column:1/-1;padding-top:12px;border-top:1px solid var(--line)}.season-total strong{font:800 26px Manrope;color:var(--g)}@media(max-width:700px){.season-panel{padding:15px}.season-result{grid-template-columns:1fr}.season-result .season-total{grid-column:auto}.heading{align-items:flex-start;flex-direction:column}.content{padding:20px 14px}}@media print{.sidebar,header,.heading button,.season-panel form,.side-bottom{display:none!important}.main{margin:0}.content{padding:0}.season-panel{break-inside:avoid;box-shadow:none}.table-wrap{overflow:visible}.data-table{min-width:0;font-size:9px}.data-table th,.data-table td{white-space:normal;padding:6px}}
 
 /* Identidade Maré: off-white, dourado suave e azul profundo */
 :root{color:#252a31;background:#f7f5ef;--g:#17345b;--g2:#244a76;--line:#e8e1d3;--muted:#77756f}
@@ -51,28 +50,12 @@ header{background:#fffefa;border-color:#e8e1d3}
 @media(max-width:700px){.photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.photo-tile img{height:112px}}
 
 /* Visão geral de valores por período */
-.price-overview-head{font-size:8px}.price-overview-row b{white-space:normal}}
 
 /* Atalhos da tela inicial e consulta persistente de período/imóvel */
-.period-launch{background:#fffefa;border:1px solid #e8e1d3;border-radius:16px;padding:20px;margin:20px 0}
-.period-launch h2{margin:7px 0 16px;color:#17345b;font-size:20px}
-.period-launch-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
-.period-choice{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px 12px;border:1px solid #e8e1d3;border-radius:12px;background:#fff;color:#17345b;text-align:left;cursor:pointer}
-.period-choice>span{font-size:22px;color:#b49350}.period-choice b{font-size:12px}.period-choice small{font-size:10px;line-height:1.4;color:#827b6c}
-.period-choice.selected,.catalog-periods button.active{border-color:#b49350;background:#f7f0e2}
-.featured-homes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
-.featured-homes button{display:flex;flex-direction:column;gap:7px;text-align:left;padding:13px;border:1px solid #e8e1d3;border-radius:10px;background:#f7f5ef;color:#17345b;cursor:pointer}
-.featured-homes b{font-size:11px}.featured-homes span{font-size:12px;color:#9b762e}
-.catalog-selection{position:sticky;top:8px;z-index:4;background:#fffefa;border:1px solid #e8e1d3;border-radius:13px;padding:12px;margin:14px 0;box-shadow:0 6px 20px #17345b0b}
-.catalog-periods{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.catalog-periods>b{font-size:11px;color:#81765e;margin-right:4px}.catalog-periods button{border:1px solid #e8e1d3;background:white;border-radius:20px;padding:8px 11px;color:#17345b;font-size:11px;cursor:pointer}.catalog-periods button.active{font-weight:800}
 .selected-home-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0 8px;margin-top:8px;border-top:1px solid #eee7d9}.selected-home-banner div{display:flex;flex-direction:column;gap:4px}.selected-home-banner small{font-size:9px;letter-spacing:.08em;color:#9b762e}.selected-home-banner b{font-size:14px;color:#17345b}.selected-home-banner span{font-size:10px;color:#817b70}
-.selected-home-prices>b{display:block;font-size:11px;color:#17345b;margin-bottom:6px}.selected-home-prices>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #f0eadf;font-size:11px}.selected-home-prices strong{color:#17345b}.selected-home-prices p{font-size:11px;color:#817b70}
 .custom-period{align-items:end;margin-top:12px}
 .photo-tile{cursor:grab}.photo-tile.dragging{opacity:.45;border:2px dashed #b49350}
 .card-actions{display:flex;gap:5px}.card-actions button{font-size:10px}
-@media(max-width:900px){.period-launch-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:600px){.period-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.featured-homes{grid-template-columns:1fr}.catalog-selection{position:static;top:auto;z-index:auto}.catalog-periods{gap:5px}.catalog-periods button{padding:7px 8px;font-size:10px}}
-
 
 /* Mídia de imóveis: imagens e vídeos sem alterar a identidade visual */
 .photo-tile img,.photo-tile video.media-video-frame,.photo-tile iframe.media-video-frame{display:block;width:100%;height:112px;object-fit:cover;border:0;background:#ece7dc}
@@ -82,7 +65,6 @@ header{background:#fffefa;border-color:#e8e1d3}
 .photo-manager-head span{white-space:nowrap}
 #add-video-link{margin-top:9px}
 @media(max-width:700px){.photo-tile img,.photo-tile video.media-video-frame,.photo-tile iframe.media-video-frame{height:120px}}
-
 
 /* Galeria de imagens detectadas durante a importação */
 .import-gallery-preview{border:1px solid #e5dfd2;border-radius:12px;padding:12px;background:#fffefa;margin-bottom:14px}
@@ -98,24 +80,8 @@ header{background:#fffefa;border-color:#e8e1d3}
 .card-actions .danger-text{color:#a33e36;border-color:#e8cbc6;background:#fffaf9}
 @media(max-width:600px){.import-gallery-preview>div{grid-template-columns:repeat(2,minmax(0,1fr))}.import-gallery-preview img{height:100px}.card-actions button{font-size:10px}}
 
-
 /* Consulta rápida em janela sobreposta */
-.quick-consult-backdrop{z-index:60;backdrop-filter:blur(3px)}
-.quick-consult-modal{width:min(100%,760px);max-height:92vh;overflow:auto}
-.quick-period-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.quick-period{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px 9px;border:1px solid #e8e1d3;border-radius:11px;background:#fffefa;color:#17345b;text-align:left}
-.quick-period>span{font-size:20px;color:#b49350}.quick-period b{font-size:11px}.quick-period small{font-size:9px;line-height:1.4;color:#817b70}
-.quick-period.active{background:#f7f0e2;border-color:#b49350}
-.qc-homes{margin-top:15px}.qc-homes>p,.qc-note{font-size:11px;color:#817b70;line-height:1.6}
-.qc-home{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;padding:13px;margin-top:7px;border:1px solid #e8e1d3;border-radius:10px;background:#fffefa;text-align:left;color:#17345b}
-.qc-selected{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 0;margin-top:14px;border-top:1px solid #e8e1d3}
-.qc-selected small{font-size:9px;letter-spacing:.08em;color:#9b762e}.qc-selected b{font-size:14px;color:#17345b}
-.qc-price-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #eee7d9;font-size:11px}
-.qc-price-row strong{font-size:12px;color:#17345b;white-space:nowrap}.qc-note{margin:14px 0 0;padding-top:10px;border-top:1px solid #eee7d9}
 .video-upload-zone{margin-top:10px}
-.quick-consult-modal{max-height:94vh;border-radius:18px 18px 0 0;padding:20px 16px}.quick-period-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-period:last-child{grid-column:1/-1}.qc-price-row{align-items:flex-start;flex-direction:column}.qc-price-row strong{white-space:normal}.qc-home{align-items:flex-start}.qc-home strong{white-space:normal}.qc-selected{align-items:flex-start;flex-direction:column}}
-
-.price-home-option strong{white-space:normal}.price-sheet-title{align-items:flex-start;flex-direction:column;width:100%}.price-sheet-title .actions{width:100%}}
 
 .amenity-editor{border:1px solid #e8e1d3;border-radius:12px;padding:14px;background:#fffefa}
 .amenity-editor>label{display:block;margin-bottom:10px;font-size:12px;color:#17345b}
@@ -139,7 +105,6 @@ header{background:#fffefa;border-color:#e8e1d3}
 .import-gallery-preview figure[data-preview-draft]{cursor:pointer;border-radius:8px;padding:3px;transition:transform .12s ease,box-shadow .12s ease}
 .import-gallery-preview figure[data-preview-draft]:hover{transform:translateY(-2px);box-shadow:0 3px 12px #17345b20}
 
-
 /* Identidade visual unificada */
 :root{color-scheme:light;--theme-bg:#f6f5f1;--theme-surface:#fffefa;--theme-surface-2:#e9e8e5;--theme-surface-3:#d5d4d0;--theme-text:#28292d;--theme-muted:#6f7075;--theme-line:#d8d6d0;--theme-gold:#b49350;--theme-red:#b52332;--theme-navy:#17324f;--theme-green:#26734d}
 html[data-theme="dark"]{color-scheme:dark;--theme-bg:#222326;--theme-surface:#2d2f33;--theme-surface-2:#383a3f;--theme-surface-3:#484a4f;--theme-text:#f4f1e8;--theme-muted:#b8b5ad;--theme-line:#4b4c50;--theme-gold:#d2b46b;--theme-red:#d94a57;--theme-navy:#294b6d;--theme-green:#3b9a68}
@@ -147,7 +112,6 @@ html[data-theme="dark"]{color-scheme:dark;--theme-bg:#222326;--theme-surface:#2d
 .theme-toggle:hover,.theme-toggle:focus-visible{opacity:1;transform:translateY(-1px);outline:2px solid var(--theme-gold);outline-offset:2px}
 @media(max-width:600px){.theme-toggle{right:10px;bottom:10px;padding:8px 11px;font-size:11px}}
 @media print{.theme-toggle{display:none!important}}
-
 
 /* BancoImob — identidade visual unificada */
 body{background:var(--theme-bg);color:var(--theme-text)}
@@ -164,18 +128,16 @@ body{background:var(--theme-bg);color:var(--theme-text)}
 .form input,.form select,.form textarea,.toolbar input,.toolbar select{background:var(--theme-surface);color:var(--theme-text);border-color:var(--theme-line)}
 .form label,.table-wrap th,.table-wrap td,.data-table th,.data-table td{color:var(--theme-muted)}
 .cover{background:var(--theme-surface-2);color:var(--theme-gold)}
-.table-wrap,.data-table,.data-table tbody tr,.empty,.season-result,.photo-tile,.featured-homes button,.period-choice{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
+.table-wrap,.data-table,.data-table tbody tr,.empty,.season-result,.photo-tile{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
 .table-wrap th,.data-table th{background:var(--theme-surface-2);color:var(--theme-text)}
 .toast{background:var(--theme-navy);color:#fff}.toast.bad{background:var(--theme-red)}
 html[data-theme="dark"] body{background:var(--theme-bg);color:var(--theme-text)}
-html[data-theme="dark"] .sidebar,html[data-theme="dark"] header,html[data-theme="dark"] .setup-card,html[data-theme="dark"] .metrics article,html[data-theme="dark"] .panel,html[data-theme="dark"] .home-card,html[data-theme="dark"] .modal,html[data-theme="dark"] .period-launch,html[data-theme="dark"] .catalog-selection,html[data-theme="dark"] .photo-manager,html[data-theme="dark"] ,html[data-theme="dark"] .season-panel{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
+html[data-theme="dark"] .sidebar,html[data-theme="dark"] header,html[data-theme="dark"] .setup-card,html[data-theme="dark"] .metrics article,html[data-theme="dark"] .panel,html[data-theme="dark"] .home-card,html[data-theme="dark"] .modal,html[data-theme="dark"] .photo-manager,html[data-theme="dark"]{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
 html[data-theme="dark"] .logo,html[data-theme="dark"] .mobile-logo,html[data-theme="dark"] .heading h1,html[data-theme="dark"] .section-title h2,html[data-theme="dark"] .welcome h2,html[data-theme="dark"] .panel h2,html[data-theme="dark"] .card-body h3,html[data-theme="dark"] .metrics strong{color:var(--theme-text)}
 html[data-theme="dark"] .welcome{background:linear-gradient(115deg,var(--theme-surface),var(--theme-surface-2))}
 html[data-theme="dark"] .form input,html[data-theme="dark"] .form select,html[data-theme="dark"] .form textarea,html[data-theme="dark"] .toolbar input,html[data-theme="dark"] .toolbar select{background:#25272a;color:var(--theme-text);border-color:var(--theme-line)}
-html[data-theme="dark"] .btn.secondary,html[data-theme="dark"] .card-foot button,html[data-theme="dark"] .table-wrap button,html[data-theme="dark"] .tabs,html[data-theme="dark"] .table-wrap th,html[data-theme="dark"] .data-table th,html[data-theme="dark"] .price-overview-head{background:var(--theme-surface-2);color:var(--theme-text);border-color:var(--theme-line)}
+html[data-theme="dark"] .btn.secondary,html[data-theme="dark"] .card-foot button,html[data-theme="dark"] .table-wrap button,html[data-theme="dark"] .tabs,html[data-theme="dark"] .table-wrap th,html[data-theme="dark"] .data-table th{background:var(--theme-surface-2);color:var(--theme-text);border-color:var(--theme-line)}
 html[data-theme="dark"] .nav{color:var(--theme-muted)}html[data-theme="dark"] .nav.active{background:var(--theme-surface-2);color:var(--theme-text)}
-
-
 
 /* EBIMOB — padrão único de autenticação para todas as ferramentas */
 .auth-login-shell,.auth-shell{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:28px 16px;background:radial-gradient(ellipse at 80% 0%,#e9e8e5,transparent 42%),#f6f5f1}
