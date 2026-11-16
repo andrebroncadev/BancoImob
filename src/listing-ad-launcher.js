@@ -1,4 +1,5 @@
-// Intercept the legacy PDF action and open the new authenticated HTML listing.
+// Route the legacy "Abrir anúncio" action to the same public URL used by "Copiar link".
+const publicListingUrl = id => location.origin + '/imovel/' + encodeURIComponent(String(id || ''));
 const openListing = event => {
   const button = event.target.closest?.('[data-export-pdf]');
   if (!button) return;
@@ -6,7 +7,7 @@ const openListing = event => {
   event.stopPropagation();
   event.stopImmediatePropagation();
   const id = button.dataset.exportPdf;
-  if (id) window.open('/anuncio.html?id=' + encodeURIComponent(id), '_blank', 'noopener');
+  if (id) window.open(publicListingUrl(id), '_blank', 'noopener');
 };
 document.addEventListener('click', openListing, true);
 const renameButtons = () => document.querySelectorAll('[data-export-pdf]').forEach(button => {
