@@ -105,8 +105,7 @@ async function deleteHome(id,button){
  ];
  for(const [label,run] of tasks){const result=await run();if(result.error){say('Não foi possível concluir a exclusão ('+label+'): '+result.error.message,true);button.disabled=false;button.textContent='Excluir';return}}
  if(storagePaths.length){const storage=await db.storage.from('mare-imoveis').remove(storagePaths);if(storage.error)say('Imóvel excluído, mas algumas fotos antigas podem permanecer no armazenamento.',true)}
- if(state.selectedHomeId===id){state.selectedHomeId=null;state.selectedHomeAlias=null}
- say('Imóvel excluído.');await load();
+  say('Imóvel excluído.');await load();
 }
 function cards(list){
  if(!list.length)return '<div class="empty">Nenhum imóvel encontrado. Cadastre uma casa para começar.</div>';
