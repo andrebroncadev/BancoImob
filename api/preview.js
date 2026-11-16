@@ -28,14 +28,15 @@ export default async function handler(req, res) {
     }
   }
 
-  const canonical = 'https://bancoimob-bronca.vercel.app/imovel/' + id;
-  const title = listing?.titulo ? String(listing.titulo) + ' | BancoImob' : 'Imóvel para temporada | BancoImob';
+  const canonical = 'https://bancoimob-bronca.vercel.app/imovel/' + id + '?v=2';
+  const listingName = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
+  const title = listingName + ' | BancoImob';
   const description = listing
     ? [listing.bairro, listing.cidade, listing.dormitorios ? listing.dormitorios + ' dormitórios' : '', listing.capacidade ? 'acomoda ' + listing.capacidade + ' hóspedes' : ''].filter(Boolean).join(' · ') || 'Veja fotos e detalhes deste imóvel para temporada.'
     : 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
   const photos = Array.isArray(listing?.fotos) ? listing.fotos : [];
   const selected = photos.filter(photo => photo && photo.url && !/\.(mp4|mov|webm|m4v)(\?|$)/i.test(photo.url));
-  const cover = selected.find(photo => photo.capa) || selected.sort((a, b) => (a.ordem ?? 9999) - (b.ordem ?? 9999))[0];
+  const cover = selected.sort((a, b) => (a.ordem ?? 9999) - (b.ordem ?? 9999))[0];
   const image = cover?.url || 'https://bancoimob-bronca.vercel.app/og-bancoimob.jpg';
   const html = `<!doctype html>
 <html lang="pt-BR">
@@ -44,6 +45,7 @@ export default async function handler(req, res) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
+<meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="${canonical}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BancoImob">
@@ -53,7 +55,10 @@ export default async function handler(req, res) {
 <meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${escapeHtml(image)}">
 <meta property="og:image:secure_url" content="${escapeHtml(image)}">
-<meta property="og:image:alt" content="${escapeHtml(listing?.titulo || 'Foto do imóvel')}">
+<meta property="og:image:alt" content="${escapeHtml(listingName)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
