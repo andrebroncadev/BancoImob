@@ -92,5 +92,35 @@
  .cards-list .home-card .card-foot{align-items:flex-start;flex-direction:column}
  .view-switch button{padding:7px 8px;font-size:12px}
 }
+/* Cards use fixed dimensions in both catalog modes. */
+.cards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:15px}
+.cards-grid .home-card{height:430px;min-height:430px;display:flex;flex-direction:column}
+.cards-grid .home-card>.cover{height:165px;min-height:165px;flex:0 0 165px}
+.cards-grid .home-card>.card-body{flex:1;min-height:0;display:flex;flex-direction:column}
+.cards-grid .home-card .card-body h3{min-height:38px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cards-grid .home-card .private-alias,.cards-grid .home-card .card-description{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.cards-grid .home-card .facts{min-height:34px;max-height:34px;overflow:hidden}
+.cards-grid .home-card .card-foot{margin-top:auto;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.cards-grid .home-card .card-actions{display:flex;gap:6px;flex-wrap:wrap}
+.cards-list{display:flex;flex-direction:column;gap:12px}
+.cards-list .home-card{height:232px;min-height:232px;display:grid;grid-template-columns:220px minmax(0,1fr)}
+.cards-list .home-card>.cover{height:232px;min-height:232px}
+.cards-list .home-card>.card-body{min-width:0;min-height:0;display:flex;flex-direction:column}
+.cards-list .home-card .card-body h3{min-height:20px;max-height:40px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cards-list .home-card .private-alias,.cards-list .home-card .card-description{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.cards-list .home-card .facts{min-height:30px;max-height:30px;overflow:hidden}
+.cards-list .home-card .card-foot{margin-top:auto;align-items:center;gap:8px;flex-wrap:wrap}
+.cards-list .home-card .card-actions{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:900px){.cards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){
+ .cards-grid{grid-template-columns:1fr}
+ .cards-grid .home-card{height:420px;min-height:420px}
+ .cards-list .home-card{height:220px;min-height:220px;grid-template-columns:112px minmax(0,1fr)}
+ .cards-list .home-card>.cover{height:220px;min-height:220px}
+ .cards-list .home-card .card-body{padding:10px}
+ .cards-list .home-card .card-foot{align-items:flex-start;flex-direction:column}
+ .cards-list .home-card .card-actions{gap:4px}
+ .cards-list .home-card .card-actions button{font-size:9px;padding:5px}
+}
 </style>
 </body></html>
