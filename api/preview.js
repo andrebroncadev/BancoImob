@@ -57,12 +57,16 @@ function pageHtml({ id, listing, canonical }) {
     facts.join(' · ')
   ].filter(Boolean).join(' — ') || 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
 
-  const imageTags = cover ? `
-<meta property="og:image" content="${escapeHtml(cover.url)}">
-<meta property="og:image:url" content="${escapeHtml(cover.url)}">
-<meta property="og:image:secure_url" content="${escapeHtml(cover.url)}">
+  const socialImage = cover ? origin + '/api/og-image?id=' + encodeURIComponent(id) : '';
+  const imageTags = socialImage ? `
+<meta property="og:image" content="${escapeHtml(socialImage)}">
+<meta property="og:image:url" content="${escapeHtml(socialImage)}">
+<meta property="og:image:secure_url" content="${escapeHtml(socialImage)}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="800">
 <meta property="og:image:alt" content="${escapeHtml(name)}">
-<meta name="twitter:image" content="${escapeHtml(cover.url)}">` : '';
+<meta name="twitter:image" content="${escapeHtml(socialImage)}">` : '';
 
   const hero = cover
     ? '<img class="hero-image" src="' + escapeHtml(cover.url) + '" alt="' + escapeHtml(name) + '" fetchpriority="high">'
