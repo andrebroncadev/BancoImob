@@ -1,5 +1,20 @@
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 
+const isPublicImage = photo => {
+  if (!photo?.url) return false;
+  const label = String(photo.legenda || '');
+  if (/^video(?::|$)/i.test(label)) return false;
+  try {
+    const url = new URL(photo.url);
+    if (url.protocol !== 'https:') return false;
+    const host = url.hostname.replace(/^www\./, '');
+    if (['youtube.com', 'youtu.be', 'vimeo.com', 'player.vimeo.com'].includes(host)) return false;
+    return !/\.(mp4|mov|webm|m4v|avi|m3u8)$/i.test(url.pathname);
+  } catch {
+    return false;
+  }
+};
+
 export default async function handler(req, res) {
   const id = String(req.query?.id || '');
   if (!/^[0-9a-f-]{36}$/i.test(id)) {
@@ -23,21 +38,24 @@ export default async function handler(req, res) {
         body: JSON.stringify({ p_imovel_id: id })
       });
       if (response.ok) listing = await response.json();
+      else console.error('Prévia pública não carregou o imóvel:', response.status);
     } catch (error) {
       console.error('Falha ao carregar prévia do imóvel:', error);
     }
   }
 
-  const canonical = 'https://bancoimob-bronca.vercel.app/imovel/' + id + '?v=2';
+  const canonical = 'https://bancoimob-bronca.vercel.app/imovel/' + id;
   const listingName = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
   const title = listingName + ' | BancoImob';
   const description = listing
     ? [listing.bairro, listing.cidade, listing.dormitorios ? listing.dormitorios + ' dormitórios' : '', listing.capacidade ? 'acomoda ' + listing.capacidade + ' hóspedes' : ''].filter(Boolean).join(' · ') || 'Veja fotos e detalhes deste imóvel para temporada.'
     : 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
+
   const photos = Array.isArray(listing?.fotos) ? listing.fotos : [];
-  const selected = photos.filter(photo => photo && photo.url && !/\.(mp4|mov|webm|m4v)(\?|$)/i.test(photo.url));
-  const cover = selected.sort((a, b) => (a.ordem ?? 9999) - (b.ordem ?? 9999))[0];
+  const cover = photos.filter(isPublicImage).sort((a, b) => Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999))[0];
   const image = cover?.url || 'https://bancoimob-bronca.vercel.app/og-bancoimob.jpg';
+  const imageType = /\.png(?:$|\?)/i.test(image) ? 'image/png' : /\.webp(?:$|\?)/i.test(image) ? 'image/webp' : 'image/jpeg';
+
   const html = `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -55,20 +73,18 @@ export default async function handler(req, res) {
 <meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${escapeHtml(image)}">
 <meta property="og:image:secure_url" content="${escapeHtml(image)}">
+<meta property="og:image:type" content="${imageType}">
 <meta property="og:image:alt" content="${escapeHtml(listingName)}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
 <meta name="twitter:image" content="${escapeHtml(image)}">
-<meta http-equiv="refresh" content="0;url=${canonical}">
 </head>
-<body><p>Abrindo anúncio… <a href="${canonical}">Continuar para o imóvel</a></p></body>
+<body><main><h1>${escapeHtml(listingName)}</h1><p>${escapeHtml(description)}</p><img src="${escapeHtml(image)}" alt="${escapeHtml(listingName)}"><p><a href="${canonical}">Abrir anúncio no BancoImob</a></p></main></body>
 </html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
-  res.status(listing ? 200 : 200).send(html);
+  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.status(200).send(html);
 }
