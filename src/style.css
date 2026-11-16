@@ -205,3 +205,17 @@ html[data-theme="dark"] .auth-card h2{color:#f4f1e8}
   object-fit:contain!important;
   background:#eeeae1;
 }
+
+
+/* Cartão do catálogo: hierarquia clara e apelido interno com contraste */
+.home-card .card-body{display:flex;flex-direction:column;align-items:stretch}
+.home-card .card-body h3{order:1}
+.home-card .card-description{order:2;margin:7px 0 9px;color:var(--theme-text,#30343b);line-height:1.55}
+.home-card .private-alias{
+  order:3;display:inline-flex;align-self:flex-start;max-width:100%;
+  margin:4px 0 10px;padding:7px 11px;border:1px solid #b68b36;
+  border-radius:8px;background:#f4e6c5;color:#49320d!important;
+  font-size:12px!important;font-weight:800;line-height:1.35;overflow-wrap:anywhere
+}
+.home-card .facts{order:4}
+.home-card .card-foot{order:5}
