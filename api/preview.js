@@ -51,17 +51,14 @@ export default async function handler(req, res) {
     if (Boolean(a.capa) !== Boolean(b.capa)) return a.capa ? -1 : 1;
     return Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999);
   })[0] || null;
-  const image = cover
-    ? origin + '/api/og-image?id=' + encodeURIComponent(id) + '&v=' + encodeURIComponent(version)
-    : '';
+  // O Open Graph aponta diretamente para a foto de capa cadastrada no imóvel.
+  // Sem conversão intermediária: a URL é a mesma imagem exibida no anúncio.
+  const image = cover?.url || '';
 
   const imageTags = image ? `
 <meta property="og:image" content="${escapeHtml(image)}">
 <meta property="og:image:url" content="${escapeHtml(image)}">
 <meta property="og:image:secure_url" content="${escapeHtml(image)}">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${escapeHtml(name)}">
 <meta name="twitter:image" content="${escapeHtml(image)}"> ` : '';
 
