@@ -1,5 +1,9 @@
+import sharp from 'sharp';
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PROJECT_HOST = 'ctfmuvtvjvlzjiapyrdh.supabase.co';
+const MAX_INPUT_BYTES = 20 * 1024 * 1024;
+const MAX_OUTPUT_BYTES = 300 * 1024;
 
 async function getListing(id) {
   const base = String(process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
@@ -25,6 +29,17 @@ function validPhoto(photo) {
   } catch { return false; }
 }
 
+async function optimizedJpeg(input) {
+  const base = sharp(input, { failOn: 'none' }).rotate().resize(1200, 630, {
+    fit: 'cover', position: 'attention', withoutEnlargement: false
+  });
+  for (const quality of [76, 68, 60, 52, 44, 36]) {
+    const output = await base.clone().jpeg({ quality, progressive: true, mozjpeg: true }).toBuffer();
+    if (output.length <= MAX_OUTPUT_BYTES) return output;
+  }
+  throw new Error('Unable to compress the cover below 300 KB');
+}
+
 export default async function handler(req, res) {
   const id = String(req.query?.id || '');
   if (!UUID.test(id)) { res.status(400).send('Invalid listing id'); return; }
@@ -40,17 +55,23 @@ export default async function handler(req, res) {
 
     const upstream = await fetch(photo.url, { redirect: 'follow' });
     if (!upstream.ok) { res.status(502).send('Image source returned ' + upstream.status); return; }
-    const contentType = String(upstream.headers.get('content-type') || '').split(';')[0].toLowerCase();
-    if (!contentType.startsWith('image/')) { res.status(415).send('The selected file is not an image'); return; }
-    const bytes = Buffer.from(await upstream.arrayBuffer());
-    if (!bytes.length || bytes.length > 12 * 1024 * 1024) { res.status(413).send('Image size is not supported'); return; }
+    const sourceType = String(upstream.headers.get('content-type') || '').split(';')[0].toLowerCase();
+    if (!sourceType.startsWith('image/')) { res.status(415).send('The selected file is not an image'); return; }
+    const declaredLength = Number(upstream.headers.get('content-length') || 0);
+    if (declaredLength > MAX_INPUT_BYTES) { res.status(413).send('Source image is too large'); return; }
+    const input = Buffer.from(await upstream.arrayBuffer());
+    if (!input.length || input.length > MAX_INPUT_BYTES) { res.status(413).send('Source image is too large'); return; }
 
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Length', String(bytes.length));
-    res.setHeader('Content-Disposition', 'inline; filename="bancoimob-cover"');
-    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');
+    const jpeg = await optimizedJpeg(input);
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Length', String(jpeg.length));
+    res.setHeader('Content-Disposition', 'inline; filename="bancoimob-og.jpg"');
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800');
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.status(200).send(bytes);
+    res.setHeader('X-OG-Width', '1200');
+    res.setHeader('X-OG-Height', '630');
+    res.setHeader('X-OG-Bytes', String(jpeg.length));
+    res.status(200).send(jpeg);
   } catch (error) {
     console.error('[BancoImob OG image] failed:', error?.message || error);
     res.status(500).send('Unable to load listing image');
