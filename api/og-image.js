@@ -30,7 +30,7 @@ function validPhoto(photo) {
 }
 
 async function optimizedJpeg(input) {
-  const base = sharp(input, { failOn: 'none' }).rotate().resize(1200, 630, {
+  const base = sharp(input, { failOn: 'none' }).rotate().resize(1200, 800, {
     fit: 'cover', position: 'attention', withoutEnlargement: false
   });
   for (const quality of [76, 68, 60, 52, 44, 36]) {
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-OG-Width', '1200');
-    res.setHeader('X-OG-Height', '630');
+    res.setHeader('X-OG-Height', '800');
     res.setHeader('X-OG-Bytes', String(jpeg.length));
     res.status(200).send(jpeg);
   } catch (error) {
