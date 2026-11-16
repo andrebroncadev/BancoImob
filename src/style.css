@@ -51,16 +51,7 @@ header{background:#fffefa;border-color:#e8e1d3}
 @media(max-width:700px){.photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.photo-tile img{height:112px}}
 
 /* Visão geral de valores por período */
-.home-prices{padding:0;overflow:hidden;margin-top:12px}
-.price-overview-head,.price-overview-row{display:grid;grid-template-columns:minmax(110px,1fr) minmax(150px,1.6fr) minmax(100px,.8fr);gap:12px;align-items:center;padding:13px 17px}
-.price-overview-head{background:#f1eadb;color:#7c622e;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
-.price-overview-row{border-top:1px solid #e8e1d3;font-size:12px;color:#625f58}
-.price-overview-row b{color:#17345b;white-space:nowrap}
-.import-prices{border:1px solid #e8e1d3;border-radius:12px;padding:14px;background:#fffefa;margin:8px 0 14px}
-.import-prices h3{font-size:13px;color:#17345b;margin:0 0 6px}
-.import-prices>p{font-size:11px;color:#77756f;line-height:1.6;margin:0 0 12px}
-.imported-price{padding:10px 0;border-top:1px solid #eee7d9}
-@media(max-width:700px){.price-overview-head,.price-overview-row{grid-template-columns:minmax(80px,1fr) minmax(100px,1.4fr) minmax(85px,.8fr);gap:7px;padding:12px 10px;font-size:10px}.price-overview-head{font-size:8px}.price-overview-row b{white-space:normal}}
+.price-overview-head{font-size:8px}.price-overview-row b{white-space:normal}}
 
 /* Atalhos da tela inicial e consulta persistente de período/imóvel */
 .period-launch{background:#fffefa;border:1px solid #e8e1d3;border-radius:16px;padding:20px;margin:20px 0}
@@ -75,7 +66,7 @@ header{background:#fffefa;border-color:#e8e1d3}
 .catalog-selection{position:sticky;top:8px;z-index:4;background:#fffefa;border:1px solid #e8e1d3;border-radius:13px;padding:12px;margin:14px 0;box-shadow:0 6px 20px #17345b0b}
 .catalog-periods{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.catalog-periods>b{font-size:11px;color:#81765e;margin-right:4px}.catalog-periods button{border:1px solid #e8e1d3;background:white;border-radius:20px;padding:8px 11px;color:#17345b;font-size:11px;cursor:pointer}.catalog-periods button.active{font-weight:800}
 .selected-home-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0 8px;margin-top:8px;border-top:1px solid #eee7d9}.selected-home-banner div{display:flex;flex-direction:column;gap:4px}.selected-home-banner small{font-size:9px;letter-spacing:.08em;color:#9b762e}.selected-home-banner b{font-size:14px;color:#17345b}.selected-home-banner span{font-size:10px;color:#817b70}
-.selected-home-prices{border-top:1px solid #eee7d9;padding-top:8px}.selected-home-prices>b{display:block;font-size:11px;color:#17345b;margin-bottom:6px}.selected-home-prices>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #f0eadf;font-size:11px}.selected-home-prices strong{color:#17345b}.selected-home-prices p{font-size:11px;color:#817b70}
+.selected-home-prices>b{display:block;font-size:11px;color:#17345b;margin-bottom:6px}.selected-home-prices>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #f0eadf;font-size:11px}.selected-home-prices strong{color:#17345b}.selected-home-prices p{font-size:11px;color:#817b70}
 .custom-period{align-items:end;margin-top:12px}
 .photo-tile{cursor:grab}.photo-tile.dragging{opacity:.45;border:2px dashed #b49350}
 .card-actions{display:flex;gap:5px}.card-actions button{font-size:10px}
@@ -117,27 +108,14 @@ header{background:#fffefa;border-color:#e8e1d3}
 .quick-period.active{background:#f7f0e2;border-color:#b49350}
 .qc-homes{margin-top:15px}.qc-homes>p,.qc-note{font-size:11px;color:#817b70;line-height:1.6}
 .qc-home{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;padding:13px;margin-top:7px;border:1px solid #e8e1d3;border-radius:10px;background:#fffefa;text-align:left;color:#17345b}
-.qc-home span,.qc-selected>div,.qc-price-row>span{display:flex;flex-direction:column;gap:4px;min-width:0}
-.qc-home b{font-size:12px}.qc-home small,.qc-selected span,.qc-price-row small{font-size:10px;color:#817b70}.qc-home strong{font-size:11px;color:#9b762e;white-space:nowrap}
 .qc-selected{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 0;margin-top:14px;border-top:1px solid #e8e1d3}
 .qc-selected small{font-size:9px;letter-spacing:.08em;color:#9b762e}.qc-selected b{font-size:14px;color:#17345b}
-.qc-price-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0}.qc-price-head b{font-size:12px;color:#17345b}
 .qc-price-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #eee7d9;font-size:11px}
 .qc-price-row strong{font-size:12px;color:#17345b;white-space:nowrap}.qc-note{margin:14px 0 0;padding-top:10px;border-top:1px solid #eee7d9}
 .video-upload-zone{margin-top:10px}
-@media(max-width:700px){.quick-consult-backdrop{padding:0}.quick-consult-modal{max-height:94vh;border-radius:18px 18px 0 0;padding:20px 16px}.quick-period-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-period:last-child{grid-column:1/-1}.qc-price-row{align-items:flex-start;flex-direction:column}.qc-price-row strong{white-space:normal}.qc-home{align-items:flex-start}.qc-home strong{white-space:normal}.qc-selected{align-items:flex-start;flex-direction:column}}
+.quick-consult-modal{max-height:94vh;border-radius:18px 18px 0 0;padding:20px 16px}.quick-period-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-period:last-child{grid-column:1/-1}.qc-price-row{align-items:flex-start;flex-direction:column}.qc-price-row strong{white-space:normal}.qc-home{align-items:flex-start}.qc-home strong{white-space:normal}.qc-selected{align-items:flex-start;flex-direction:column}}
 
-.price-home-picker{display:grid;gap:8px;margin:16px 0}
-.price-home-option{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;border:1px solid #e8e1d3;border-radius:12px;background:#fffefa;color:#17345b;text-align:left;box-shadow:0 5px 18px #17345b08}
-.price-home-option span{display:flex;flex-direction:column;gap:5px;min-width:0}
-.price-home-option b{font-size:13px}.price-home-option small{font-size:10px;color:#817b70}
-.price-home-option strong{font-size:11px;color:#9b762e;white-space:nowrap}
-.price-home-option.selected{border-color:#b49350;background:#f9f4e9}
-.selected-price-sheet{margin-top:18px}
-.price-sheet-title{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-.price-sheet-title h2{font:800 20px Manrope;color:#17345b;margin:5px 0}
-.price-sheet-title p{font-size:11px;color:#817b70;margin:0}
-@media(max-width:700px){.price-home-option{padding:13px}.price-home-option strong{white-space:normal}.price-sheet-title{align-items:flex-start;flex-direction:column;width:100%}.price-sheet-title .actions{width:100%}}
+.price-home-option strong{white-space:normal}.price-sheet-title{align-items:flex-start;flex-direction:column;width:100%}.price-sheet-title .actions{width:100%}}
 
 .amenity-editor{border:1px solid #e8e1d3;border-radius:12px;padding:14px;background:#fffefa}
 .amenity-editor>label{display:block;margin-bottom:10px;font-size:12px;color:#17345b}
@@ -178,7 +156,7 @@ body{background:var(--theme-bg);color:var(--theme-text)}
 .logo i,.user,.nav.active{background:var(--theme-surface-2);color:var(--theme-navy)}
 .nav{color:var(--theme-muted)}.nav.active{border:1px solid var(--theme-gold)}
 .side-bottom,.heading p,.welcome p,.metrics small,.metrics span,.card-body p,.facts,.choice small{color:var(--theme-muted)}
-.setup{background:var(--theme-bg)}.setup-card,.metrics article,.panel,.home-card,.modal,.period-launch,.catalog-selection,.photo-manager,.import-prices,.season-panel{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
+.setup{background:var(--theme-bg)}.setup-card,.metrics article,.panel,.home-card,.modal,.period-launch,.catalog-selection,.photo-manager,.season-panel{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
 .welcome{background:linear-gradient(115deg,var(--theme-surface) 60%,var(--theme-surface-2));border-color:var(--theme-line)}
 .btn.primary{background:var(--theme-navy);color:#fff}.btn.primary:hover{background:var(--theme-red)}
 .btn.secondary,.card-foot button,.table-wrap button,.tabs{background:var(--theme-surface-2);color:var(--theme-text);border-color:var(--theme-line)}
@@ -187,10 +165,10 @@ body{background:var(--theme-bg);color:var(--theme-text)}
 .form label,.table-wrap th,.table-wrap td,.data-table th,.data-table td{color:var(--theme-muted)}
 .cover{background:var(--theme-surface-2);color:var(--theme-gold)}
 .table-wrap,.data-table,.data-table tbody tr,.empty,.season-result,.photo-tile,.featured-homes button,.period-choice{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
-.table-wrap th,.data-table th,.price-overview-head{background:var(--theme-surface-2);color:var(--theme-text)}
+.table-wrap th,.data-table th{background:var(--theme-surface-2);color:var(--theme-text)}
 .toast{background:var(--theme-navy);color:#fff}.toast.bad{background:var(--theme-red)}
 html[data-theme="dark"] body{background:var(--theme-bg);color:var(--theme-text)}
-html[data-theme="dark"] .sidebar,html[data-theme="dark"] header,html[data-theme="dark"] .setup-card,html[data-theme="dark"] .metrics article,html[data-theme="dark"] .panel,html[data-theme="dark"] .home-card,html[data-theme="dark"] .modal,html[data-theme="dark"] .period-launch,html[data-theme="dark"] .catalog-selection,html[data-theme="dark"] .photo-manager,html[data-theme="dark"] .import-prices,html[data-theme="dark"] .season-panel{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
+html[data-theme="dark"] .sidebar,html[data-theme="dark"] header,html[data-theme="dark"] .setup-card,html[data-theme="dark"] .metrics article,html[data-theme="dark"] .panel,html[data-theme="dark"] .home-card,html[data-theme="dark"] .modal,html[data-theme="dark"] .period-launch,html[data-theme="dark"] .catalog-selection,html[data-theme="dark"] .photo-manager,html[data-theme="dark"] ,html[data-theme="dark"] .season-panel{background:var(--theme-surface);border-color:var(--theme-line);color:var(--theme-text)}
 html[data-theme="dark"] .logo,html[data-theme="dark"] .mobile-logo,html[data-theme="dark"] .heading h1,html[data-theme="dark"] .section-title h2,html[data-theme="dark"] .welcome h2,html[data-theme="dark"] .panel h2,html[data-theme="dark"] .card-body h3,html[data-theme="dark"] .metrics strong{color:var(--theme-text)}
 html[data-theme="dark"] .welcome{background:linear-gradient(115deg,var(--theme-surface),var(--theme-surface-2))}
 html[data-theme="dark"] .form input,html[data-theme="dark"] .form select,html[data-theme="dark"] .form textarea,html[data-theme="dark"] .toolbar input,html[data-theme="dark"] .toolbar select{background:#25272a;color:var(--theme-text);border-color:var(--theme-line)}
