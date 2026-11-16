@@ -1,60 +1,67 @@
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const isPublicImage = photo => {
-  if (!photo?.url) return false;
-  const label = String(photo.legenda || '');
-  if (/^video(?::|$)/i.test(label)) return false;
+function isPublicImage(photo) {
+  if (!photo?.url || /^video(?::|$)/i.test(String(photo.legenda || ''))) return false;
   try {
-    const url = new URL(photo.url);
-    if (url.protocol !== 'https:') return false;
-    const host = url.hostname.replace(/^www\./, '');
-    if (['youtube.com', 'youtu.be', 'vimeo.com', 'player.vimeo.com'].includes(host)) return false;
-    return !/\.(mp4|mov|webm|m4v|avi|m3u8)$/i.test(url.pathname);
-  } catch {
-    return false;
-  }
-};
+    const u = new URL(photo.url);
+    return u.protocol === 'https:' &&
+      !/\.(mp4|mov|webm|m4v|avi|m3u8)$/i.test(u.pathname) &&
+      !/(youtube\.com|youtu\.be|vimeo\.com)/i.test(u.hostname);
+  } catch { return false; }
+}
+
+async function getListing(id) {
+  const base = String(process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+  const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+  if (!base || !key) throw new Error('Supabase preview environment is not configured');
+  const response = await fetch(base + '/rest/v1/rpc/mare_public_listing', {
+    method: 'POST',
+    headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_imovel_id: id })
+  });
+  if (!response.ok) throw new Error('Public listing RPC returned ' + response.status);
+  const payload = await response.json();
+  return Array.isArray(payload) ? (payload[0] || null) : payload;
+}
 
 export default async function handler(req, res) {
   const id = String(req.query?.id || '');
-  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+  if (!UUID.test(id)) {
     res.status(400).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Link de imóvel inválido.');
     return;
   }
 
-  const baseUrl = (process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
-  const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
   let listing = null;
-
-  if (baseUrl && anonKey) {
-    try {
-      const response = await fetch(baseUrl + '/rest/v1/rpc/mare_public_listing', {
-        method: 'POST',
-        headers: {
-          apikey: anonKey,
-          Authorization: 'Bearer ' + anonKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ p_imovel_id: id })
-      });
-      if (response.ok) listing = await response.json();
-      else console.error('Prévia pública não carregou o imóvel:', response.status);
-    } catch (error) {
-      console.error('Falha ao carregar prévia do imóvel:', error);
-    }
-  }
+  try { listing = await getListing(id); }
+  catch (error) { console.error('[BancoImob OG] listing lookup failed:', error?.message || error); }
 
   const canonical = 'https://bancoimob-bronca.vercel.app/imovel/' + id;
-  const listingName = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
-  const title = listingName + ' | BancoImob';
+  const name = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
+  const title = name + ' | BancoImob';
   const description = listing
-    ? [listing.bairro, listing.cidade, listing.dormitorios ? listing.dormitorios + ' dormitórios' : '', listing.capacidade ? 'acomoda ' + listing.capacidade + ' hóspedes' : ''].filter(Boolean).join(' · ') || 'Veja fotos e detalhes deste imóvel para temporada.'
+    ? [listing.bairro, listing.cidade, listing.dormitorios ? listing.dormitorios + ' dormitórios' : '', listing.capacidade ? 'acomoda ' + listing.capacidade + ' hóspedes' : '']
+        .filter(Boolean).join(' · ') || 'Veja fotos e detalhes deste imóvel para temporada.'
     : 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
 
   const photos = Array.isArray(listing?.fotos) ? listing.fotos : [];
-  const cover = photos.filter(isPublicImage).sort((a, b) => Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999))[0];
-  const image = cover?.url || 'https://bancoimob-bronca.vercel.app/og-bancoimob.jpg';
-  const imageType = /\.png(?:$|\?)/i.test(image) ? 'image/png' : /\.webp(?:$|\?)/i.test(image) ? 'image/webp' : 'image/jpeg';
+  const cover = photos.filter(isPublicImage).sort((a, b) => {
+    if (Boolean(a.capa) !== Boolean(b.capa)) return a.capa ? -1 : 1;
+    return Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999);
+  })[0] || null;
+  const image = cover
+    ? 'https://bancoimob-bronca.vercel.app/api/og-image?id=' + encodeURIComponent(id) + '&v=1'
+    : '';
+  const imageType = cover && /\.png(?:$|\?)/i.test(cover.url) ? 'image/png'
+    : cover && /\.webp(?:$|\?)/i.test(cover.url) ? 'image/webp' : 'image/jpeg';
+
+  const imageTags = image ? `
+<meta property="og:image" content="${escapeHtml(image)}">
+<meta property="og:image:url" content="${escapeHtml(image)}">
+<meta property="og:image:secure_url" content="${escapeHtml(image)}">
+<meta property="og:image:type" content="${imageType}">
+<meta property="og:image:alt" content="${escapeHtml(name)}">
+<meta name="twitter:image" content="${escapeHtml(image)}">` : '';
 
   const html = `<!doctype html>
 <html lang="pt-BR">
@@ -71,20 +78,17 @@ export default async function handler(req, res) {
 <meta property="og:title" content="${escapeHtml(title)}">
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${escapeHtml(image)}">
-<meta property="og:image:secure_url" content="${escapeHtml(image)}">
-<meta property="og:image:type" content="${imageType}">
-<meta property="og:image:alt" content="${escapeHtml(listingName)}">
+${imageTags}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
-<meta name="twitter:image" content="${escapeHtml(image)}">
 </head>
-<body><main><h1>${escapeHtml(listingName)}</h1><p>${escapeHtml(description)}</p><img src="${escapeHtml(image)}" alt="${escapeHtml(listingName)}"><p><a href="${canonical}">Abrir anúncio no BancoImob</a></p></main></body>
+<body><main><h1>${escapeHtml(name)}</h1><p>${escapeHtml(description)}</p>${image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(name) + '">' : ''}<p><a href="${canonical}">Abrir anúncio no BancoImob</a></p></main></body>
 </html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-BancoImob-OG', listing ? (cover ? 'listing-and-cover' : 'listing-without-cover') : 'listing-not-found');
   res.status(200).send(html);
 }
