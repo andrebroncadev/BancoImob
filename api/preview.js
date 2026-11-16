@@ -1,5 +1,6 @@
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const origin = 'https://bancoimob-bronca.vercel.app';
 
 function isPublicImage(photo) {
   if (!photo?.url || /^video(?::|$)/i.test(String(photo.legenda || ''))) return false;
@@ -25,9 +26,106 @@ async function getListing(id) {
   return Array.isArray(payload) ? (payload[0] || null) : payload;
 }
 
+function pageHtml({ id, listing, canonical }) {
+  const name = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
+  const title = name + ' | BancoImob';
+  const photos = (Array.isArray(listing?.fotos) ? listing.fotos : [])
+    .filter(isPublicImage)
+    .sort((a, b) => Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999));
+  const cover = photos.find(photo => photo.capa) || photos[0] || null;
+  const gallery = cover
+    ? [cover, ...photos.filter(photo => photo.url !== cover.url)]
+    : photos;
+  const location = [listing?.bairro, listing?.cidade].filter(Boolean).join(' · ');
+  const facts = [
+    listing?.dormitorios != null ? [listing.dormitorios, 'dormitórios'].join(' ') : '',
+    listing?.suites ? [listing.suites, 'suítes'].join(' ') : '',
+    listing?.capacidade ? 'Acomoda ' + listing.capacidade + ' hóspedes' : '',
+    listing?.distancia_praia === 0 ? 'Pé na areia' :
+      listing?.distancia_praia != null ? listing.distancia_praia + ' m da praia' : ''
+  ].filter(Boolean);
+  const amenities = [...new Set([
+    ...(Array.isArray(listing?.comodidades) ? listing.comodidades : []),
+    listing?.piscina ? 'Piscina' : '',
+    listing?.churrasqueira ? 'Churrasqueira' : '',
+    listing?.area_gourmet ? 'Área gourmet' : '',
+    listing?.servico_praia ? 'Serviço de praia' : ''
+  ].filter(Boolean).map(value => String(value).trim()).filter(Boolean))];
+  const description = String(listing?.descricao || '').trim();
+  const summary = [
+    location,
+    facts.join(' · ')
+  ].filter(Boolean).join(' — ') || 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
+
+  const imageTags = cover ? `
+<meta property="og:image" content="${escapeHtml(cover.url)}">
+<meta property="og:image:url" content="${escapeHtml(cover.url)}">
+<meta property="og:image:secure_url" content="${escapeHtml(cover.url)}">
+<meta property="og:image:alt" content="${escapeHtml(name)}">
+<meta name="twitter:image" content="${escapeHtml(cover.url)}">` : '';
+
+  const hero = cover
+    ? '<img class="hero-image" src="' + escapeHtml(cover.url) + '" alt="' + escapeHtml(name) + '" fetchpriority="high">'
+    : '<div class="hero-placeholder">Fotos em breve</div>';
+  const galleryHtml = gallery.length > 1
+    ? '<section class="section"><h2>Fotos do imóvel</h2><div class="gallery">' +
+      gallery.slice(1).map((photo, index) =>
+        '<figure><img src="' + escapeHtml(photo.url) + '" alt="' + escapeHtml(photo.legenda || ('Foto ' + (index + 2))) + '" loading="lazy"></figure>'
+      ).join('') + '</div></section>'
+    : '';
+  const factsHtml = facts.map(fact => '<span class="fact">' + escapeHtml(fact) + '</span>').join('');
+  const amenitiesHtml = amenities.length
+    ? '<section class="section"><h2>Comodidades</h2><div class="tags">' + amenities.map(item => '<span>' + escapeHtml(item) + '</span>').join('') + '</div></section>'
+    : '';
+  const descriptionHtml = description
+    ? '<section class="section"><h2>Sobre o imóvel</h2><p class="description">' + escapeHtml(description).replace(/\r?\n/g, '<br>') + '</p></section>'
+    : '';
+  const contactText = 'Olá! Tenho interesse no imóvel ' + name + ' (' + canonical + ')';
+  const contactUrl = 'https://wa.me/?text=' + encodeURIComponent(contactText);
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17345b">
+<title>${escapeHtml(title)}</title>
+<meta name="description" content="${escapeHtml(summary)}">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="${escapeHtml(canonical)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BancoImob">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(summary)}">
+<meta property="og:url" content="${escapeHtml(canonical)}">
+${imageTags}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(title)}">
+<meta name="twitter:description" content="${escapeHtml(summary)}">
+<style>
+:root{color-scheme:light;font-family:Arial,Helvetica,sans-serif;color:#252a32;background:#f6f4ef;--navy:#17345b;--gold:#b49350;--line:#e7e1d6}
+*{box-sizing:border-box}body{margin:0;min-width:320px}.site-header{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,calc((100vw - 1120px)/2));background:#fffefa;border-bottom:1px solid var(--line)}.brand{font-size:19px;font-weight:800;color:var(--navy);text-decoration:none}.header-note{font-size:11px;color:#777}.container{width:min(1120px,calc(100% - 32px));margin:26px auto 52px}.hero{position:relative;min-height:370px;border-radius:20px;overflow:hidden;background:#d8d6d0;display:flex;align-items:flex-end;color:white;isolation:isolate}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,19,34,.82),rgba(8,19,34,.08) 78%);z-index:-1}.hero-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}.hero-placeholder{display:grid;place-items:center;width:100%;min-height:370px;background:#273d5b;color:white}.hero-copy{padding:clamp(22px,5vw,48px);max-width:840px}.kicker{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ead7a9}.hero h1{font-size:clamp(29px,5vw,49px);line-height:1.08;letter-spacing:-1px;margin:12px 0}.location{font-size:14px;margin:0;color:#f5f3ee}.facts{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}.fact{font-size:12px;font-weight:650;padding:9px 12px;border:1px solid #ffffff55;background:#ffffff1c;border-radius:30px}.section{margin-top:30px}.section h2{font-size:20px;color:var(--navy);margin:0 0 13px}.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.gallery figure{margin:0;border-radius:13px;overflow:hidden;background:#e9e5dc;min-height:170px}.gallery img{display:block;width:100%;height:220px;object-fit:cover}.tags{display:flex;flex-wrap:wrap;gap:8px}.tags span{padding:8px 12px;border:1px solid #e5dcc9;background:#fbf8f0;color:#6f5a32;border-radius:30px;font-size:12px}.description{margin:0;padding:20px;background:#fffefa;border:1px solid var(--line);border-radius:14px;color:#50555c;font-size:14px;line-height:1.8;overflow-wrap:anywhere}.contact{display:inline-flex;align-items:center;justify-content:center;margin-top:30px;padding:14px 22px;border-radius:10px;background:var(--navy);color:white;text-decoration:none;font-weight:700}.footer{padding:22px 0;border-top:1px solid var(--line);margin-top:38px;color:#777;font-size:11px}@media(max-width:700px){.container{margin-top:15px}.hero{min-height:320px;border-radius:15px}.hero-placeholder{min-height:320px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery img{height:170px}.section{margin-top:24px}}@media(max-width:430px){.gallery{grid-template-columns:1fr}.gallery img{height:220px}.header-note{font-size:9px}}
+</style>
+</head>
+<body>
+<header class="site-header"><a class="brand" href="/">≈ BancoImob</a><span class="header-note">Anúncio de temporada</span></header>
+<main class="container">
+<section class="hero">${hero}<div class="hero-copy"><span class="kicker">Locação por temporada</span><h1>${escapeHtml(name)}</h1><p class="location">${escapeHtml(location || 'Litoral Norte')}</p><div class="facts">${factsHtml}</div></div></section>
+${galleryHtml}
+${amenitiesHtml}
+${descriptionHtml}
+<a class="contact" href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer">Consultar pelo WhatsApp ↗</a>
+<footer class="footer">BancoImob · Informações sujeitas à confirmação de disponibilidade e condições para as datas desejadas.</footer>
+</main>
+</body>
+</html>`;
+}
+
 export default async function handler(req, res) {
   const id = String(req.query?.id || '');
-  const version = String(req.query?.v || '5').replace(/[^0-9a-z_-]/gi, '').slice(0, 24) || '5';
+  const version = String(req.query?.v || '').replace(/[^0-9a-z_-]/gi, '').slice(0, 24);
+  const canonical = origin + '/imovel/' + id + (version ? '?v=' + encodeURIComponent(version) : '');
   if (!UUID.test(id)) {
     res.status(400).setHeader('Content-Type', 'text/plain; charset=utf-8').send('Link de imóvel inválido.');
     return;
@@ -37,59 +135,19 @@ export default async function handler(req, res) {
   try { listing = await getListing(id); }
   catch (error) { console.error('[BancoImob OG] listing lookup failed:', error?.message || error); }
 
-  const origin = 'https://bancoimob-bronca.vercel.app';
-  const canonical = origin + '/imovel/' + id + '?v=' + encodeURIComponent(version);
-  const name = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
-  const title = name + ' | BancoImob';
-  const description = listing
-    ? [listing.bairro, listing.cidade, listing.dormitorios ? listing.dormitorios + ' dormitórios' : '', listing.capacidade ? 'acomoda ' + listing.capacidade + ' hóspedes' : '']
-        .filter(Boolean).join(' · ') || 'Veja fotos e detalhes deste imóvel para temporada.'
-    : 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
+  if (!listing) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(404).send('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Anúncio indisponível | BancoImob</title><body><main><h1>Anúncio indisponível</h1><p>Este link pode estar incorreto ou o imóvel não está mais publicado.</p><a href="/">Voltar ao BancoImob</a></main></body></html>');
+    return;
+  }
 
-  const photos = Array.isArray(listing?.fotos) ? listing.fotos : [];
-  const cover = photos.filter(isPublicImage).sort((a, b) => {
-    if (Boolean(a.capa) !== Boolean(b.capa)) return a.capa ? -1 : 1;
-    return Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999);
-  })[0] || null;
-  // O Open Graph aponta diretamente para a foto de capa cadastrada no imóvel.
-  // Sem conversão intermediária: a URL é a mesma imagem exibida no anúncio.
-  const image = cover?.url || '';
-
-  const imageTags = image ? `
-<meta property="og:image" content="${escapeHtml(image)}">
-<meta property="og:image:url" content="${escapeHtml(image)}">
-<meta property="og:image:secure_url" content="${escapeHtml(image)}">
-<meta property="og:image:alt" content="${escapeHtml(name)}">
-<meta name="twitter:image" content="${escapeHtml(image)}"> ` : '';
-
-  const html = `<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(title)}</title>
-<meta name="description" content="${escapeHtml(description)}">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="${escapeHtml(canonical)}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="BancoImob">
-<meta property="og:locale" content="pt_BR">
-<meta property="og:title" content="${escapeHtml(title)}">
-<meta property="og:description" content="${escapeHtml(description)}">
-<meta property="og:url" content="${escapeHtml(canonical)}">
-${imageTags}
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${escapeHtml(title)}">
-<meta name="twitter:description" content="${escapeHtml(description)}">
-</head>
-<body><main><h1>${escapeHtml(name)}</h1><p>${escapeHtml(description)}</p>${image ? '<img src="' + escapeHtml(image) + '" width="1200" height="630" alt="' + escapeHtml(name) + '">' : ''}<p><a href="${escapeHtml(canonical)}">Abrir anúncio no BancoImob</a></p></main><script>setTimeout(()=>location.replace(${JSON.stringify(canonical)}),700)</script></body>
-</html>`;
-
+  const photos = Array.isArray(listing.fotos) ? listing.fotos.filter(isPublicImage) : [];
+  const cover = photos.find(photo => photo.capa) || photos.sort((a, b) => Number(a.ordem ?? 999999) - Number(b.ordem ?? 999999))[0] || null;
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Content-Language', 'pt-BR');
-  res.setHeader('Cache-Control', 'public, s-maxage=0, stale-while-revalidate=0');
-  res.setHeader('Vary', 'User-Agent');
+  res.setHeader('Cache-Control', 'no-store, max-age=0, must-revalidate');
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-BancoImob-OG', listing ? (cover ? 'listing-and-cover' : 'listing-without-cover') : 'listing-not-found');
-  res.status(listing ? 200 : 404).send(html);
+  res.setHeader('X-BancoImob-OG', cover ? 'listing-and-cover' : 'listing-without-cover');
+  res.status(200).send(pageHtml({ id, listing, canonical }));
 }
