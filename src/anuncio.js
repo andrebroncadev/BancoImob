@@ -54,7 +54,7 @@ async function render() {
   const photos = (media || []).filter(item => item.url);
   const images = photos.filter(item => !isVideo(item));
   const videos = photos.filter(isVideo);
-  const cover = images[0] || null;
+  const cover = images.find(item => item.capa) || images[0] || null;
   const title = String(home.nome_anuncio || home.titulo || 'Imóvel para temporada').trim();
   const description = String(home.descricao || 'Descrição não cadastrada.');
   const neighborhood = String(home.bairro || 'Litoral Norte');
@@ -118,12 +118,11 @@ async function render() {
   ].filter(Boolean);
   app.innerHTML = '<div class="page">' +
     '<header class="topbar"><div class="brand"><span class="brand-mark">≈</span>BancoImob</div></header>' +
-    '<section class="hero">' + hero + '<div class="hero-content"><div class="eyebrow">Locação por temporada</div><h1>' + esc(title) + '</h1><p class="hero-description">' + esc(description) + '</p><p class="hero-location">⌖ ' + esc(neighborhood) + '</p>' +
-    '<div class="quickfacts">' + facts.filter((item, index) => index !== 1 || Number(home.suites || 0) > 0).map(item => '<span>' + esc(item[0] === 'Dormitórios' ? item[1] + ' dormitórios' : item[0] === 'Suítes' ? item[1] + ' suítes' : item[1]) + '</span>').join('') + '</div></div></section>' +
+    '<section class="hero">' + hero + '<div class="hero-content"><div class="eyebrow">Locação por temporada</div><h1>' + esc(title) + '</h1><p class="hero-location">⌖ ' + esc(neighborhood) + '</p></div></section>' +
+    ((gallery || videoGallery) ? '<section class="section"><div class="section-head"><div><div class="section-kicker">AMBIENTES E ESPAÇOS</div><h2>Galeria de fotos</h2></div></div><div class="gallery">' + gallery + videoGallery + '</div></section>' : '') +
     '<section class="section"><div class="section-head"><div><div class="section-kicker">CARACTERÍSTICAS</div><h2>Detalhes do imóvel</h2></div></div><div class="facts">' + facts.map(item => '<article class="fact"><small>' + esc(item[0]) + '</small><strong>' + esc(item[1]) + '</strong></article>').join('') + '</div></section>' +
     (amenities.length ? '<section class="section"><div class="section-kicker">CONFORTO E LAZER</div><h2>Comodidades</h2><div class="amenities">' + amenities.map(item => '<span>' + esc(item) + '</span>').join('') + '</div></section>' : '') +
     '<section class="section"><div class="section-head"><div><div class="section-kicker">APRESENTAÇÃO</div><h2>Sobre o imóvel</h2></div></div><div class="description">' + esc(description) + '</div></section>' +
-    ((gallery || videoGallery) ? '<section class="section"><div class="section-head"><div><div class="section-kicker">AMBIENTES E ESPAÇOS</div><h2>Galeria de fotos</h2></div></div><div class="gallery">' + gallery + videoGallery + '</div></section>' : '') +
     '<footer class="footer"><div class="footer-top"><span class="footer-brand">BancoImob</span><small>Material de consulta comercial · Disponibilidade sujeita à confirmação</small></div><div class="meta-block"><b>Metadados do anúncio</b><div class="meta-tags">' + tags.map(tag => '<span>' + esc(tag) + '</span>').join('') + '</div></div></footer>' +
     '</div>';
 }
