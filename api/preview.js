@@ -82,7 +82,7 @@ ${imageTags}
 <meta name="twitter:title" content="${escapeHtml(title)}">
 <meta name="twitter:description" content="${escapeHtml(description)}">
 </head>
-<body><main><h1>${escapeHtml(name)}</h1><p>${escapeHtml(description)}</p>${image ? '<img src="' + escapeHtml(image) + '" width="1200" height="630" alt="' + escapeHtml(name) + '">' : ''}<p><a href="${escapeHtml(canonical)}">Abrir anúncio no BancoImob</a></p></main></body>
+<body><main><h1>${escapeHtml(name)}</h1><p>${escapeHtml(description)}</p>${image ? '<img src="' + escapeHtml(image) + '" width="1200" height="630" alt="' + escapeHtml(name) + '">' : ''}<p><a href="${escapeHtml(canonical)}">Abrir anúncio no BancoImob</a></p></main><script>setTimeout(()=>location.replace(${JSON.stringify(canonical)}),700)</script></body>
 </html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
