@@ -84,8 +84,6 @@ function pageHtml({ id, listing, canonical }) {
   const descriptionHtml = description
     ? '<section class="section"><h2>Sobre o imóvel</h2><p class="description">' + escapeHtml(description).replace(/\r?\n/g, '<br>') + '</p></section>'
     : '';
-  const contactText = 'Olá! Tenho interesse no imóvel ' + name + ' (' + canonical + ')';
-  const contactUrl = 'https://wa.me/?text=' + encodeURIComponent(contactText);
 
   return `<!doctype html>
 <html lang="pt-BR">
@@ -116,10 +114,9 @@ ${imageTags}
 <header class="site-header"><a class="brand" href="/">≈ BancoImob</a><span class="header-note">Anúncio de temporada</span></header>
 <main class="container">
 <section class="hero">${hero}<div class="hero-copy"><span class="kicker">Locação por temporada</span><h1>${escapeHtml(name)}</h1><p class="location">${escapeHtml(location || 'Litoral Norte')}</p><div class="facts">${factsHtml}</div></div></section>
-${galleryHtml}
 ${amenitiesHtml}
+${galleryHtml}
 ${descriptionHtml}
-<a class="contact" href="${escapeHtml(contactUrl)}" target="_blank" rel="noopener noreferrer">Consultar pelo WhatsApp ↗</a>
 <footer class="footer">BancoImob · Informações sujeitas à confirmação de disponibilidade e condições para as datas desejadas.</footer>
 </main>
 </body>
