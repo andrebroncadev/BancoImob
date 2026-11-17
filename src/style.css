@@ -226,3 +226,28 @@ html[data-theme="dark"] .auth-card h2{color:#f4f1e8}
 .crop-dialog-actions .btn{flex:1}
 .photo-controls [data-photo-crop]{font-size:9px}
 @media(max-width:600px){.crop-backdrop{padding:10px}.crop-dialog{padding:14px}.crop-dialog-actions{flex-direction:column}}
+
+/* Modo lista: capa e apelido na coluna lateral, conteúdo e ações ao lado */
+.cards.cards-list{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.cards-list>.home-card{display:grid;grid-template-columns:minmax(190px,26%) minmax(0,1fr);grid-template-rows:auto auto;align-items:stretch}
+.cards-list>.home-card>.cover{grid-column:1;grid-row:1;min-height:150px;aspect-ratio:3/2!important;height:auto!important}
+.cards-list>.home-card>.private-alias{grid-column:1;grid-row:2;align-self:start;margin:9px 10px 12px;max-width:calc(100% - 20px)}
+.cards-list>.home-card>.card-body{grid-column:2;grid-row:1/3;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:15px 18px}
+.cards-list>.home-card .card-body h3{margin:0 0 7px;overflow-wrap:anywhere}
+.cards-list>.home-card .card-description{margin:0 0 8px;line-height:1.5}
+.cards-list>.home-card .facts{margin-top:auto;line-height:1.5}
+.cards-list>.home-card .card-foot{padding-top:10px}
+.cards-list>.home-card .card-actions{display:flex;flex-wrap:wrap;gap:6px}
+.cards-list>.home-card .card-actions button,.cards-list>.home-card .card-actions a{white-space:normal}
+.crop-preview{position:relative;cursor:grab;touch-action:none;user-select:none}
+.crop-preview.is-panning{cursor:grabbing}
+.crop-preview img{pointer-events:none}
+.crop-pan-hint{margin:-7px 0 12px;color:#77756f;font-size:10px;text-align:center}
+@media(max-width:560px){
+ .cards.cards-list{grid-template-columns:minmax(0,1fr)}
+ .cards-list>.home-card{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}
+ .cards-list>.home-card>.cover{grid-column:1;grid-row:1;min-height:0}
+ .cards-list>.home-card>.private-alias{grid-column:1;grid-row:2;margin:9px 10px 0}
+ .cards-list>.home-card>.card-body{grid-column:1;grid-row:3;padding:13px}
+ .cards-list>.home-card .card-foot{align-items:flex-start}
+}
