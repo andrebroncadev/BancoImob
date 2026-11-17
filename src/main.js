@@ -113,9 +113,33 @@ function readPhotoCrop(url){
  if(!match)return {zoom:1,x:50,y:50};
  return {zoom:Math.min(3,Math.max(1,Number(match[1])||1)),x:Math.min(100,Math.max(0,Number(match[2])||50)),y:Math.min(100,Math.max(0,Number(match[3])||50))};
 }
-function photoUrlWithCrop(url,crop){
- const base=String(url||'').split('#')[0],zoom=Math.min(3,Math.max(1,Number(crop?.zoom)||1)),x=Math.min(100,Math.max(0,Number(crop?.x??50))),y=Math.min(100,Math.max(0,Number(crop?.y??50)));
- return zoom===1&&x===50&&y===50?base:base+'#bi-crop='+zoom.toFixed(2)+','+Math.round(x)+','+Math.round(y);
+function photoUrlWithCrop(url){return String(url||'').split('#')[0]}
+function cropWasAdjusted(crop){return Boolean(crop?.applied)}
+function createCroppedPhotoBlob(url,crop){
+ return new Promise((resolve,reject)=>{
+  const image=new Image();image.crossOrigin='anonymous';
+  image.onload=()=>{
+   try{
+    const iw=image.naturalWidth,ih=image.naturalHeight,targetRatio=1.5,zoom=Math.min(3,Math.max(1,Number(crop?.zoom)||1));
+    let sw=iw,sh=ih;if(iw/ih>targetRatio)sw=ih*targetRatio;else sh=iw/targetRatio;
+    sw/=zoom;sh/=zoom;
+    const sx=Math.max(0,Math.min(iw-sw,(iw-sw)*(Number(crop?.x??50)/100)));
+    const sy=Math.max(0,Math.min(ih-sh,(ih-sh)*(Number(crop?.y??50)/100)));
+    const canvas=document.createElement('canvas');canvas.width=1500;canvas.height=1000;
+    const ctx=canvas.getContext('2d');ctx.drawImage(image,sx,sy,sw,sh,0,0,1500,1000);
+    canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Não foi possível gerar a foto recortada.')),'image/jpeg',.93);
+   }catch(error){reject(error)}
+  };
+  image.onerror=()=>reject(new Error('Não foi possível abrir a foto para aplicar o corte. Verifique se o arquivo permite edição.'));
+  image.src=photoUrlWithCrop(url);
+ });
+}
+async function uploadCroppedPhoto(sourceUrl,crop,homeId){
+ const blob=await createCroppedPhotoBlob(sourceUrl,crop);
+ const path=state.user.id+'/'+homeId+'/capa-recortada-'+crypto.randomUUID()+'.jpg';
+ const uploaded=await db.storage.from('mare-imoveis').upload(path,blob,{contentType:'image/jpeg',upsert:false});
+ if(uploaded.error)throw uploaded.error;
+ return db.storage.from('mare-imoveis').getPublicUrl(path).data.publicUrl;
 }
 function cards(list){
  if(!list.length)return '<div class="empty">Nenhum imóvel encontrado. Cadastre uma casa para começar.</div>';
@@ -213,16 +237,21 @@ const openPhotoCrop=index=>{
  const photo=photoItems[index];if(!photo||mediaIsVideo(photo))return;
  const initial=photo.crop||readPhotoCrop(photo.url),source=photo.preview||String(photo.url||'').split('#')[0];
  const layer=document.createElement('div');layer.className='crop-backdrop';
- layer.innerHTML='<section class="crop-dialog" role="dialog" aria-modal="true"><div class="crop-dialog-head"><div><b>Ajustar enquadramento</b><small>O anúncio público e a foto original não serão alterados.</small></div><button type="button" data-crop-close aria-label="Fechar">×</button></div><div class="crop-preview"><img alt="Prévia do recorte"></div><label>Zoom <output data-crop-zoom-value></output><input type="range" data-crop-zoom min="1" max="3" step=".05"></label><label>Horizontal <output data-crop-x-value></output><input type="range" data-crop-x min="0" max="100" step="1"></label><label>Vertical <output data-crop-y-value></output><input type="range" data-crop-y min="0" max="100" step="1"></label><div class="crop-dialog-actions"><button type="button" class="btn secondary" data-crop-reset>Centralizar</button><button type="button" class="btn primary" data-crop-save>Aplicar corte</button></div></section>';
- document.body.append(layer);const img=layer.querySelector('.crop-preview img');img.src=source;
- const zoom=layer.querySelector('[data-crop-zoom]'),x=layer.querySelector('[data-crop-x]'),y=layer.querySelector('[data-crop-y]');
- const paint=()=>{img.style.objectFit='cover';img.style.objectPosition=x.value+'% '+y.value+'%';img.style.transform='scale('+zoom.value+')';layer.querySelector('[data-crop-zoom-value]').textContent=Number(zoom.value).toFixed(2)+'×';layer.querySelector('[data-crop-x-value]').textContent=x.value+'%';layer.querySelector('[data-crop-y-value]').textContent=y.value+'%'};
+ layer.innerHTML='<section class="crop-dialog" role="dialog" aria-modal="true"><div class="crop-dialog-head"><div><b>Ajustar enquadramento</b><small>O recorte será publicado no anúncio. A foto original será preservada.</small></div><button type="button" data-crop-close aria-label="Fechar">×</button></div><div class="crop-preview" data-crop-pan><img alt="Prévia do recorte"></div><p class="crop-pan-hint">☝ Arraste a foto com a mãozinha para reposicionar.</p><label>Zoom <output data-crop-zoom-value></output><input type="range" data-crop-zoom min="1" max="3" step=".05"></label><div class="crop-dialog-actions"><button type="button" class="btn secondary" data-crop-reset>Centralizar posição</button><button type="button" class="btn primary" data-crop-save>Aplicar corte</button></div></section>';
+ document.body.append(layer);const preview=layer.querySelector('[data-crop-pan]'),img=layer.querySelector('.crop-preview img');img.src=source;
+ const zoom=layer.querySelector('[data-crop-zoom]'),x={value:initial.x},y={value:initial.y};
+ const paint=()=>{img.style.objectFit='cover';img.style.objectPosition=x.value+'% '+y.value+'%';img.style.transform='scale('+zoom.value+')';layer.querySelector('[data-crop-zoom-value]').textContent=Number(zoom.value).toFixed(2)+'×'};
  const set=(v)=>{zoom.value=v.zoom;x.value=v.x;y.value=v.y;paint()};set(initial);
- [zoom,x,y].forEach(input=>input.oninput=paint);
+ zoom.oninput=paint;
+ let pointer=null,lastX=0,lastY=0;
+ preview.onpointerdown=e=>{pointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;preview.setPointerCapture(pointer);preview.classList.add('is-panning');e.preventDefault()};
+ preview.onpointermove=e=>{if(pointer!==e.pointerId)return;const rect=preview.getBoundingClientRect();x.value=Math.max(0,Math.min(100,x.value-(e.clientX-lastX)/rect.width*100));y.value=Math.max(0,Math.min(100,y.value-(e.clientY-lastY)/rect.height*100));lastX=e.clientX;lastY=e.clientY;paint()};
+ const stopPan=e=>{if(pointer!==null&&e.pointerId===pointer){pointer=null;preview.classList.remove('is-panning')}};
+ preview.onpointerup=stopPan;preview.onpointercancel=stopPan;
  const close=()=>layer.remove();layer.querySelector('[data-crop-close]').onclick=close;
  layer.onclick=e=>{if(e.target===layer)close()};
- layer.querySelector('[data-crop-reset]').onclick=()=>set({zoom:1,x:50,y:50});
- layer.querySelector('[data-crop-save]').onclick=()=>{photo.crop={zoom:Number(zoom.value),x:Number(x.value),y:Number(y.value)};close();renderPhotos()};
+ layer.querySelector('[data-crop-reset]').onclick=()=>{x.value=50;y.value=50;paint()};
+ layer.querySelector('[data-crop-save]').onclick=()=>{photo.crop={zoom:Number(zoom.value),x:Number(x.value),y:Number(y.value),applied:true};close();renderPhotos()};
 };
 const wirePhotos=()=>{ov.querySelectorAll('[data-photo-crop]').forEach(btn=>btn.onclick=()=>openPhotoCrop(Number(btn.dataset.photoCrop)));ov.querySelectorAll('[data-photo-up]').forEach(btn=>btn.onclick=()=>movePhoto(Number(btn.dataset.photoUp),-1));ov.querySelectorAll('[data-photo-down]').forEach(btn=>btn.onclick=()=>movePhoto(Number(btn.dataset.photoDown),1));ov.querySelectorAll('[data-photo-remove]').forEach(btn=>btn.onclick=()=>removePhoto(Number(btn.dataset.photoRemove)));let dragging=null;ov.querySelectorAll('[data-photo-drag]').forEach(tile=>{tile.ondragstart=e=>{dragging=Number(tile.dataset.photoDrag);e.dataTransfer.effectAllowed='move';tile.classList.add('dragging')};tile.ondragend=()=>{dragging=null;tile.classList.remove('dragging')};tile.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move'};tile.ondrop=e=>{e.preventDefault();const target=Number(tile.dataset.photoDrag);if(dragging!==null&&dragging!==target){const moved=photoItems.splice(dragging,1)[0];photoItems.splice(target,0,moved);dragging=null;renderPhotos()}};tile.ontouchstart=()=>{dragging=Number(tile.dataset.photoDrag);tile.classList.add('dragging')};tile.ontouchend=e=>{if(dragging===null)return;const t=e.changedTouches?.[0],targetTile=t?document.elementFromPoint(t.clientX,t.clientY)?.closest('[data-photo-drag]'):null,target=Number(targetTile?.dataset.photoDrag);if(targetTile&&Number.isInteger(target)&&target!==dragging){const moved=photoItems.splice(dragging,1)[0];photoItems.splice(target,0,moved)}dragging=null;renderPhotos()}})};
 const movePhoto=(index,delta)=>{const target=index+delta;if(target<0||target>=photoItems.length)return;[photoItems[index],photoItems[target]]=[photoItems[target],photoItems[index]];renderPhotos()};
@@ -237,14 +266,14 @@ const firstImageIndex=photoItems.findIndex(photo=>!mediaIsVideo(photo));
 for(let i=0;i<photoItems.length&&!uploadError;i++){
  const photo=photoItems[i],isCover=!mediaIsVideo(photo)&&i===firstImageIndex;
  if(photo.kind==='saved'){
-  const savedCrop=photo.crop||readPhotoCrop(photo.url);const updated=await db.from('mare_fotos_imovel').update({ordem:i,capa:isCover,url:photoUrlWithCrop(photo.url,savedCrop)}).eq('id',photo.id);if(updated.error)uploadError=updated.error;
+  const savedCrop=photo.crop||readPhotoCrop(photo.url);let savedUrl=photoUrlWithCrop(photo.url);try{if(cropWasAdjusted(savedCrop))savedUrl=await uploadCroppedPhoto(photo.preview||photo.url,savedCrop,homeId)}catch(error){uploadError=error}if(!uploadError){const updated=await db.from('mare_fotos_imovel').update({ordem:i,capa:isCover,url:savedUrl}).eq('id',photo.id);if(updated.error)uploadError=updated.error}
  }else if(photo.kind==='video'){
   const savedVideo=await db.from('mare_fotos_imovel').insert({imovel_id:homeId,user_id:state.user.id,url:photo.url,legenda:'VIDEO',ordem:i,capa:false});if(savedVideo.error)uploadError=savedVideo.error;
  }else{
   const file=photo.file,path=state.user.id+'/'+homeId+'/'+crypto.randomUUID()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
   const uploaded=await db.storage.from('mare-imoveis').upload(path,file,{contentType:file.type,upsert:false});if(uploaded.error){uploadError=uploaded.error;break}
   const publicUrl=db.storage.from('mare-imoveis').getPublicUrl(path).data.publicUrl;
-  const savedPhoto=await db.from('mare_fotos_imovel').insert({imovel_id:homeId,user_id:state.user.id,url:photoUrlWithCrop(publicUrl,photo.crop||{zoom:1,x:50,y:50}),legenda:photo.kind==='new-video'?'VIDEO':file.name,ordem:i,capa:isCover});if(savedPhoto.error)uploadError=savedPhoto.error;
+  let finalPhotoUrl=publicUrl;try{if(cropWasAdjusted(photo.crop))finalPhotoUrl=await uploadCroppedPhoto(photo.preview,photo.crop,homeId)}catch(error){uploadError=error}if(!uploadError){const savedPhoto=await db.from('mare_fotos_imovel').insert({imovel_id:homeId,user_id:state.user.id,url:finalPhotoUrl,legenda:photo.kind==='new-video'?'VIDEO':file.name,ordem:i,capa:isCover});if(savedPhoto.error)uploadError=savedPhoto.error}
  }
 }
 newFiles.forEach(file=>URL.revokeObjectURL(file.preview));ov.remove();say(uploadError?'Imóvel salvo, mas uma foto não foi atualizada: '+uploadError.message:(p?'Imóvel atualizado.':'Imóvel cadastrado.')+(photoItems.length?' Fotos organizadas e capa definida.':''),Boolean(uploadError));await load()};
