@@ -283,3 +283,11 @@ html[data-theme="dark"] .auth-card h2{color:#f4f1e8}
  .cards-list>.home-card>.card-body{padding:13px}
  .cards-list>.home-card .card-foot{align-items:flex-start}
 }
+
+
+/* Cabeçalho do workspace: marca central e sem ação; avatar leva ao catálogo */
+.main>header{position:sticky;display:flex;align-items:center;justify-content:center}
+.main>header .mobile-logo{display:block!important;margin:0 auto;position:static;cursor:default!important;pointer-events:none;text-align:center;line-height:1}
+.main>header .user{position:absolute;right:30px;top:50%;transform:translateY(-50%);border:0;padding:0;font:800 12px/1 system-ui,sans-serif;cursor:pointer}
+.main>header .user:hover{filter:brightness(.96)}
+@media(max-width:600px){.main>header .user{right:14px}.main>header .mobile-logo{font-size:17px}}
