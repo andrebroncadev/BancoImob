@@ -110,8 +110,8 @@ async function deleteHome(id,button){
 }
 function readPhotoCrop(url){
  const match=String(url||'').match(/#bi-crop=([\d.]+),([\d.]+),([\d.]+)/);
- if(!match)return {zoom:1,x:50,y:50};
- return {zoom:Math.min(3,Math.max(1,Number(match[1])||1)),x:Math.min(100,Math.max(0,Number(match[2])||50)),y:Math.min(100,Math.max(0,Number(match[3])||50))};
+ if(!match)return {zoom:1,x:50,y:50,applied:false};
+ return {zoom:Math.min(3,Math.max(1,Number(match[1])||1)),x:Math.min(100,Math.max(0,Number(match[2])||50)),y:Math.min(100,Math.max(0,Number(match[3])||50)),applied:true};
 }
 function photoUrlWithCrop(url){return String(url||'').split('#')[0]}
 function cropWasAdjusted(crop){return Boolean(crop?.applied)}
