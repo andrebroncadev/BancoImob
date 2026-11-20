@@ -1,7 +1,12 @@
 import sharp from 'sharp';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const PROJECT_HOST = 'ctfmuvtvjvlzjiapyrdh.supabase.co';
+function configuredSupabaseHost() {
+  try {
+    const url = new URL(process.env.VITE_SUPABASE_URL || '');
+    return url.protocol === 'https:' ? url.hostname.toLowerCase() : '';
+  } catch { return ''; }
+}
 const MAX_INPUT_BYTES = 20 * 1024 * 1024;
 const MAX_OUTPUT_BYTES = 300 * 1024;
 
@@ -23,7 +28,9 @@ function validPhoto(photo) {
   if (!photo?.url || /^video(?::|$)/i.test(String(photo.legenda || ''))) return false;
   try {
     const u = new URL(photo.url);
-    return u.protocol === 'https:' && u.hostname === PROJECT_HOST &&
+    const supabaseHost = configuredSupabaseHost();
+    return Boolean(supabaseHost) && u.protocol === 'https:' &&
+      u.hostname.toLowerCase() === supabaseHost &&
       u.pathname.startsWith('/storage/v1/object/public/mare-imoveis/') &&
       !/\.(mp4|mov|webm|m4v|avi|m3u8)$/i.test(u.pathname);
   } catch { return false; }

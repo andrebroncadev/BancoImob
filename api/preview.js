@@ -12,6 +12,17 @@ function isPublicImage(photo) {
   } catch { return false; }
 }
 
+function isSupabaseStorageImage(photo) {
+  try {
+    const imageUrl = new URL(photo?.url || '');
+    const supabaseUrl = new URL(process.env.VITE_SUPABASE_URL || '');
+    return imageUrl.protocol === 'https:' &&
+      supabaseUrl.protocol === 'https:' &&
+      imageUrl.hostname.toLowerCase() === supabaseUrl.hostname.toLowerCase() &&
+      imageUrl.pathname.startsWith('/storage/v1/object/public/mare-imoveis/');
+  } catch { return false; }
+}
+
 async function getListing(id) {
   const base = String(process.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
   const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
@@ -26,7 +37,7 @@ async function getListing(id) {
   return Array.isArray(payload) ? (payload[0] || null) : payload;
 }
 
-function pageHtml({ id, listing, canonical }) {
+function pageHtml({ id, listing, canonical, version }) {
   const name = String(listing?.nome_anuncio || listing?.titulo || 'Imóvel para temporada').trim();
   const title = name + ' | BancoImob';
   const photos = (Array.isArray(listing?.fotos) ? listing.fotos : [])
@@ -57,14 +68,15 @@ function pageHtml({ id, listing, canonical }) {
     facts.join(' · ')
   ].filter(Boolean).join(' — ') || 'Veja fotos e detalhes deste imóvel para temporada no BancoImob.';
 
-  const socialImage = cover ? origin + '/api/og-image?id=' + encodeURIComponent(id) : '';
+  const optimizedSocialImage = Boolean(cover && isSupabaseStorageImage(cover));
+  const socialImage = !cover ? '' : optimizedSocialImage
+    ? origin + '/api/og-image?id=' + encodeURIComponent(id) + (version ? '&v=' + encodeURIComponent(version) : '')
+    : cover.url;
   const imageTags = socialImage ? `
 <meta property="og:image" content="${escapeHtml(socialImage)}">
 <meta property="og:image:url" content="${escapeHtml(socialImage)}">
 <meta property="og:image:secure_url" content="${escapeHtml(socialImage)}">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="800">
+${optimizedSocialImage ? '<meta property="og:image:type" content="image/jpeg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="800">' : ''}
 <meta property="og:image:alt" content="${escapeHtml(name)}">
 <meta name="twitter:image" content="${escapeHtml(socialImage)}">` : '';
 
@@ -150,5 +162,5 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0, must-revalidate');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-BancoImob-OG', cover ? 'listing-and-cover' : 'listing-without-cover');
-  res.status(200).send(pageHtml({ id, listing, canonical }));
+  res.status(200).send(pageHtml({ id, listing, canonical, version }));
 }

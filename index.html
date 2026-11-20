@@ -79,20 +79,8 @@
 .view-switch button.active{background:var(--surface2,#e9edf2);color:var(--text,#17345b)}
 .private-alias{margin:5px 0!important;color:var(--muted,#73777d)!important;font-size:12px!important;font-weight:650}
 .card-description{margin:8px 0!important;color:var(--text,#333)!important;font-size:13px!important;line-height:1.5}
-.cards-list{display:flex;flex-direction:column;gap:12px}
-.cards-list .home-card{display:grid;grid-template-columns:minmax(170px,240px) minmax(0,1fr);overflow:hidden}
-.cards-list .home-card .cover{height:100%;min-height:180px}
-.cards-list .home-card .card-body{min-width:0}
-.cards-list .home-card .card-body h3{line-height:1.35}
-.cards-list .home-card .card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.cards-list .home-card .card-actions{display:flex;gap:7px;flex-wrap:wrap}
-@media(max-width:620px){
- .cards-list .home-card{grid-template-columns:112px minmax(0,1fr)}
- .cards-list .home-card .cover{min-height:150px}
- .cards-list .home-card .card-foot{align-items:flex-start;flex-direction:column}
- .view-switch button{padding:7px 8px;font-size:12px}
-}
-/* Cards use fixed dimensions in both catalog modes. */
+/* A lista usa exclusivamente as regras responsivas de src/style.css.
+   Evita alturas fixas e colunas conflitantes no mobile. */
 .cards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:15px}
 .cards-grid .home-card{height:430px;min-height:430px;display:flex;flex-direction:column}
 .cards-grid .home-card>.cover{height:165px;min-height:165px;flex:0 0 165px}
@@ -102,15 +90,6 @@
 .cards-grid .home-card .facts{min-height:34px;max-height:34px;overflow:hidden}
 .cards-grid .home-card .card-foot{margin-top:auto;align-items:flex-end;gap:8px;flex-wrap:wrap}
 .cards-grid .home-card .card-actions{display:flex;gap:6px;flex-wrap:wrap}
-.cards-list{display:flex;flex-direction:column;gap:12px}
-.cards-list .home-card{height:232px;min-height:232px;display:grid;grid-template-columns:220px minmax(0,1fr)}
-.cards-list .home-card>.cover{height:232px;min-height:232px}
-.cards-list .home-card>.card-body{min-width:0;min-height:0;display:flex;flex-direction:column}
-.cards-list .home-card .card-body h3{min-height:20px;max-height:40px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.cards-list .home-card .private-alias,.cards-list .home-card .card-description{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.cards-list .home-card .facts{min-height:30px;max-height:30px;overflow:hidden}
-.cards-list .home-card .card-foot{margin-top:auto;align-items:center;gap:8px;flex-wrap:wrap}
-.cards-list .home-card .card-actions{display:flex;gap:6px;flex-wrap:wrap}
 @media(max-width:900px){.cards-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){
  .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px}
@@ -120,12 +99,6 @@
  .toolbar #filter{grid-column:2;grid-row:2;width:100%;max-width:150px}
  .cards-grid{grid-template-columns:1fr}
  .cards-grid .home-card{height:420px;min-height:420px}
- .cards-list .home-card{height:220px;min-height:220px;grid-template-columns:112px minmax(0,1fr)}
- .cards-list .home-card>.cover{height:220px;min-height:220px}
- .cards-list .home-card .card-body{padding:10px}
- .cards-list .home-card .card-foot{align-items:flex-start;flex-direction:column}
- .cards-list .home-card .card-actions{gap:4px}
- .cards-list .home-card .card-actions button{font-size:9px;padding:5px}
 }
 </style>
 </body></html>

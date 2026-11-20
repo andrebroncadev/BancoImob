@@ -15,7 +15,8 @@ const initials = user => { const meta=user?.user_metadata||{}; const full=String
 const date = d => d ? new Date(d+'T12:00:00').toLocaleDateString('pt-BR') : '—';
 const safe = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeHttpUrl = raw => {try{const u=new URL(String(raw||'').trim());return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}};
-const publicListingUrl = id => location.origin + '/imovel/' + encodeURIComponent(String(id || ''));
+const PUBLIC_PREVIEW_VERSION = '20261120-1';
+const publicListingUrl = id => location.origin + '/imovel/' + encodeURIComponent(String(id || '')) + '?v=' + PUBLIC_PREVIEW_VERSION;
 function videoEmbedUrl(raw){
  try{const u=new URL(String(raw||'').trim());if(!['https:','http:'].includes(u.protocol))return '';const host=u.hostname.toLowerCase().replace(/^www\./,'');
  if(host==='youtu.be'){const id=u.pathname.split('/').filter(Boolean)[0];return id?'https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id):''}
